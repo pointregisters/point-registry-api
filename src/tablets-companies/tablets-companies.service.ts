@@ -1,26 +1,79 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { CreateTabletsCompanyDto } from './dto/create-tablets-company.dto'
 import { UpdateTabletsCompanyDto } from './dto/update-tablets-company.dto'
+import { TabletsCompany } from './entities/tablets-company.entity'
+import { InjectRepository } from '@nestjs/typeorm'
+import { Repository } from 'typeorm'
 
 @Injectable()
 export class TabletsCompaniesService {
-	create(createTabletsCompanyDto: CreateTabletsCompanyDto) {
-		return 'This action adds a new tabletsCompany'
+	constructor(
+		@InjectRepository(TabletsCompany)
+		private readonly tabletsCompanyRepository: Repository<TabletsCompany>
+	) {}
+
+	async create(
+		createTabletsCompanyDto: CreateTabletsCompanyDto
+	): Promise<TabletsCompany> {
+		const tabletsCompany = this.tabletsCompanyRepository.create(
+			createTabletsCompanyDto
+		)
+
+		return await this.tabletsCompanyRepository.save(tabletsCompany)
 	}
 
-	findAll() {
-		return `This action returns all tabletsCompanies`
+	async findAll(): Promise<TabletsCompany[]> {
+		return await this.tabletsCompanyRepository.find({
+			select: [
+				'id',
+				'companyId',
+				'matriz',
+				'terminal',
+				'uuid',
+				'status',
+				'dataInstalacao',
+				'token'
+			]
+		})
 	}
 
-	findOne(id: number) {
-		return `This action returns a #${id} tabletsCompany`
+	async findOne(id: number): Promise<TabletsCompany> {
+		const tabletsCompany = await this.tabletsCompanyRepository.findOneOrFail({
+			select: [
+				'id',
+				'companyId',
+				'matriz',
+				'terminal',
+				'uuid',
+				'status',
+				'dataInstalacao',
+				'token'
+			],
+			where: { id }
+		})
+
+		if (!id) {
+			throw new NotFoundException(`Não achei um TabletsCompany com o id ${id}`)
+		}
+		return tabletsCompany
 	}
 
-	update(id: number, updateTabletsCompanyDto: UpdateTabletsCompanyDto) {
-		return `This action updates a #${id} tabletsCompany`
+	async update(
+		id: number,
+		updateTabletsCompanyDto: UpdateTabletsCompanyDto
+	): Promise<void> {
+		const tabletsCompany = await this.findOne(id)
+
+		this.tabletsCompanyRepository.merge(tabletsCompany, updateTabletsCompanyDto)
+		await this.tabletsCompanyRepository.save(tabletsCompany)
 	}
 
-	remove(id: number) {
-		return `This action removes a #${id} tabletsCompany`
+	async remove(id: number): Promise<void> {
+		await this.findOne(id)
+
+		if (!id) {
+			throw new NotFoundException(`Não achei um TabletsCompany com o id ${id}`)
+		}
+		this.tabletsCompanyRepository.softDelete({ id })
 	}
 }
