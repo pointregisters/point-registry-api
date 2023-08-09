@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger'
 import {
 	Column,
 	CreateDateColumn,
@@ -10,24 +11,31 @@ import {
 @Entity()
 export class Company {
 	@PrimaryGeneratedColumn()
+	@ApiProperty()
 	id: number
 
 	@Column({ name: 'razao_social' })
+	@ApiProperty()
 	razaoSocial: string
 
 	@Column()
+	@ApiProperty()
 	cnpj: string
 
 	@Column()
+	@ApiProperty()
 	type: number
 
 	@Column({ name: 'id_matriz' })
+	@ApiProperty()
 	matrizId: number
 
 	@Column()
+	@ApiProperty()
 	matriz: number
 
 	@Column()
+	@ApiProperty()
 	token: string
 
 	@CreateDateColumn({
@@ -35,6 +43,7 @@ export class Company {
 		name: 'create_at',
 		default: () => 'CURRENT_TIMESTAMP(6)'
 	})
+	@ApiProperty()
 	createAt: Date
 
 	@UpdateDateColumn({
@@ -43,11 +52,13 @@ export class Company {
 		default: () => 'CURRENT_TIMESTAMP(6)',
 		onUpdate: 'CURRENT_TIMESTAMP(6)'
 	})
+	@ApiProperty()
 	updateAt: Date
 
 	@DeleteDateColumn({
 		type: 'timestamp',
 		name: 'deleted_at'
 	})
+	@ApiProperty()
 	deletedAt: Date
 }

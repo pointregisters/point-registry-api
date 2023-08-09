@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger'
 import {
 	BeforeInsert,
 	Column,
@@ -13,33 +14,43 @@ import { v4 as uuidv4 } from 'uuid'
 @Entity()
 export class Movement {
 	@PrimaryGeneratedColumn('uuid')
+	@ApiProperty()
 	id: string
 
 	@Column({ name: 'employee_pis' })
+	@ApiProperty()
 	employeePis: string
 
 	@Column()
+	@ApiProperty()
 	date: string
 
 	@Column()
+	@ApiProperty()
 	register: string
 
 	@Column({ name: 'company_id' })
+	@ApiProperty()
 	companyId: string
 
 	@Column()
+	@ApiProperty()
 	latitude: string
 
 	@Column()
+	@ApiProperty()
 	longitude: string
 
 	@Column()
+	@ApiProperty()
 	type: number
 
 	@Column({ name: 'company_register' })
+	@ApiProperty()
 	companyRegister: string
 
 	@Column()
+	@ApiProperty()
 	nsr: string
 
 	@CreateDateColumn({
@@ -47,6 +58,7 @@ export class Movement {
 		name: 'create_at',
 		default: () => 'CURRENT_TIMESTAMP(6)'
 	})
+	@ApiProperty()
 	createAt: Date
 
 	@UpdateDateColumn({
@@ -55,12 +67,14 @@ export class Movement {
 		default: () => 'CURRENT_TIMESTAMP(6)',
 		onUpdate: 'CURRENT_TIMESTAMP(6)'
 	})
+	@ApiProperty()
 	updateAt: Date
 
 	@DeleteDateColumn({
 		type: 'timestamp',
 		name: 'deleted_at'
 	})
+	@ApiProperty()
 	deletedAt: Date
 
 	@BeforeInsert()

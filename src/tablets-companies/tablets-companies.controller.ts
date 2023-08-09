@@ -5,20 +5,24 @@ import {
 	Body,
 	Patch,
 	Param,
-	Delete
+	Delete,
+	HttpCode,
+	HttpStatus
 } from '@nestjs/common'
 import { TabletsCompaniesService } from './tablets-companies.service'
 import { CreateTabletsCompanyDto } from './dto/create-tablets-company.dto'
 import { UpdateTabletsCompanyDto } from './dto/update-tablets-company.dto'
 import { TabletsCompany } from './entities/tablets-company.entity'
-
+import { ApiBody, ApiTags } from '@nestjs/swagger'
 @Controller('tablets-companies')
+@ApiTags('Tablets-Companies')
 export class TabletsCompaniesController {
 	constructor(
 		private readonly tabletsCompaniesService: TabletsCompaniesService
 	) {}
 
 	@Post()
+	@ApiBody({ type: CreateTabletsCompanyDto })
 	async create(
 		@Body() createTabletsCompanyDto: CreateTabletsCompanyDto
 	): Promise<TabletsCompany> {
@@ -36,6 +40,7 @@ export class TabletsCompaniesController {
 	}
 
 	@Patch(':id')
+	@ApiBody({ type: UpdateTabletsCompanyDto })
 	async update(
 		@Param('id') id: string,
 		@Body() updateTabletsCompanyDto: UpdateTabletsCompanyDto
@@ -47,6 +52,7 @@ export class TabletsCompaniesController {
 	}
 
 	@Delete(':id')
+	@HttpCode(HttpStatus.NO_CONTENT)
 	async remove(@Param('id') id: string): Promise<void> {
 		return await this.tabletsCompaniesService.remove(+id)
 	}

@@ -19,7 +19,7 @@ import { Company } from 'src/companies/entities/company.entity'
 				password: configService.get('POSTGRES_PASSWORD'),
 				database: configService.get('POSTGRES_DB'),
 				synchronize: true,
-				logging: true,
+				// logging: true,
 				entities: [Employee, Movement, TabletsCompany, Company]
 			})
 		})
