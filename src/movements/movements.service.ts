@@ -1,26 +1,79 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { CreateMovementDto } from './dto/create-movement.dto'
 import { UpdateMovementDto } from './dto/update-movement.dto'
+import { InjectRepository } from '@nestjs/typeorm'
+import { Movement } from './entities/movement.entity'
+import { Repository } from 'typeorm'
 
 @Injectable()
 export class MovementsService {
-	create(createMovementDto: CreateMovementDto) {
-		return 'This action adds a new movement'
+	constructor(
+		@InjectRepository(Movement)
+		private readonly movementRepository: Repository<Movement>
+	) {}
+
+	async create(createMovementDto: CreateMovementDto): Promise<Movement> {
+		const movement = this.movementRepository.create(createMovementDto)
+
+		return await this.movementRepository.save(movement)
 	}
 
-	findAll() {
-		return `This action returns all movements`
+	async findAll(): Promise<Movement[]> {
+		return await this.movementRepository.find({
+			select: [
+				'id',
+				'employeePis',
+				'date',
+				'register',
+				'companyId',
+				'latitude',
+				'longitude',
+				'type',
+				'companyRegister',
+				'nsr'
+			]
+		})
 	}
 
-	findOne(id: number) {
-		return `This action returns a #${id} movement`
+	async findOne(id: string): Promise<Movement> {
+		const movement = await this.movementRepository.findOneOrFail({
+			select: [
+				'id',
+				'employeePis',
+				'date',
+				'register',
+				'companyId',
+				'latitude',
+				'longitude',
+				'type',
+				'companyRegister',
+				'nsr'
+			],
+			where: { id }
+		})
+
+		if (!id) {
+			throw new NotFoundException(`Não achei um Company com o id ${id}`)
+		}
+		return movement
 	}
 
-	update(id: number, updateMovementDto: UpdateMovementDto) {
-		return `This action updates a #${id} movement`
+	async update(
+		id: string,
+		updateMovementDto: UpdateMovementDto
+	): Promise<void> {
+		const movement = await this.findOne(id)
+
+		this.movementRepository.merge(movement, updateMovementDto)
+		await this.movementRepository.save(movement)
 	}
 
-	remove(id: number) {
-		return `This action removes a #${id} movement`
+	async remove(id: string): Promise<void> {
+		await this.findOne(id)
+
+		if (!id) {
+			throw new NotFoundException(`Não achei um Company com o id ${id}`)
+		}
+		this.movementRepository.softDelete({ id })
 	}
 }

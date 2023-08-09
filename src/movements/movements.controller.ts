@@ -10,36 +10,39 @@ import {
 import { MovementsService } from './movements.service'
 import { CreateMovementDto } from './dto/create-movement.dto'
 import { UpdateMovementDto } from './dto/update-movement.dto'
+import { Movement } from './entities/movement.entity'
 
 @Controller('movements')
 export class MovementsController {
 	constructor(private readonly movementsService: MovementsService) {}
 
 	@Post()
-	create(@Body() createMovementDto: CreateMovementDto) {
-		return this.movementsService.create(createMovementDto)
+	async create(
+		@Body() createMovementDto: CreateMovementDto
+	): Promise<Movement> {
+		return await this.movementsService.create(createMovementDto)
 	}
 
 	@Get()
-	findAll() {
-		return this.movementsService.findAll()
+	async findAll(): Promise<Movement[]> {
+		return await this.movementsService.findAll()
 	}
 
 	@Get(':id')
-	findOne(@Param('id') id: string) {
-		return this.movementsService.findOne(+id)
+	async findOne(@Param('id') id: string): Promise<Movement> {
+		return await this.movementsService.findOne(id)
 	}
 
 	@Patch(':id')
-	update(
+	async update(
 		@Param('id') id: string,
 		@Body() updateMovementDto: UpdateMovementDto
-	) {
-		return this.movementsService.update(+id, updateMovementDto)
+	): Promise<void> {
+		return await this.movementsService.update(id, updateMovementDto)
 	}
 
 	@Delete(':id')
-	remove(@Param('id') id: string) {
-		return this.movementsService.remove(+id)
+	async remove(@Param('id') id: string): Promise<void> {
+		return await this.movementsService.remove(id)
 	}
 }
