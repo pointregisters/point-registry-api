@@ -1,26 +1,70 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { CreateCompanyDto } from './dto/create-company.dto'
 import { UpdateCompanyDto } from './dto/update-company.dto'
+import { InjectRepository } from '@nestjs/typeorm'
+import { Company } from './entities/company.entity'
+import { Repository } from 'typeorm'
 
 @Injectable()
 export class CompaniesService {
-	create(createCompanyDto: CreateCompanyDto) {
-		return 'This action adds a new company'
+	constructor(
+		@InjectRepository(Company)
+		private readonly companyRepository: Repository<Company>
+	) {}
+
+	async create(createCompanyDto: CreateCompanyDto): Promise<Company> {
+		const employee = this.companyRepository.create(createCompanyDto)
+
+		return await this.companyRepository.save(employee)
 	}
 
-	findAll() {
-		return `This action returns all companies`
+	async findAll(): Promise<Company[]> {
+		return await this.companyRepository.find({
+			select: [
+				'id',
+				'razaoSocial',
+				'cnpj',
+				'type',
+				'matrizId',
+				'matriz',
+				'token'
+			]
+		})
 	}
 
-	findOne(id: number) {
-		return `This action returns a #${id} company`
+	async findOne(id: number): Promise<Company> {
+		const User = await this.companyRepository.findOneOrFail({
+			select: [
+				'id',
+				'razaoSocial',
+				'cnpj',
+				'type',
+				'matrizId',
+				'matriz',
+				'token'
+			],
+			where: { id }
+		})
+
+		if (!id) {
+			throw new NotFoundException(`Não achei um Company com o id ${id}`)
+		}
+		return User
 	}
 
-	update(id: number, updateCompanyDto: UpdateCompanyDto) {
-		return `This action updates a #${id} company`
+	async update(id: number, updateCompanyDto: UpdateCompanyDto): Promise<void> {
+		const company = await this.findOne(id)
+
+		this.companyRepository.merge(company, updateCompanyDto)
+		await this.companyRepository.save(company)
 	}
 
-	remove(id: number) {
-		return `This action removes a #${id} company`
+	async remove(id: number): Promise<void> {
+		await this.findOne(id)
+
+		if (!id) {
+			throw new NotFoundException(`Não achei um Company com o id ${id}`)
+		}
+		this.companyRepository.softDelete({ id })
 	}
 }
