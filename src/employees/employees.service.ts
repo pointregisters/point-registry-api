@@ -26,13 +26,16 @@ export class EmployeesService {
 				'pis',
 				'name',
 				'registration',
-				'companyId',
+				'company',
 				'contract',
 				'phoneUuid',
 				'phoneStatus',
 				'matriz',
 				'token'
-			]
+			],
+			relations: {
+				company: true
+			}
 		})
 	}
 
@@ -44,14 +47,17 @@ export class EmployeesService {
 				'pis',
 				'name',
 				'registration',
-				'companyId',
+				'company',
 				'contract',
 				'phoneUuid',
 				'phoneStatus',
 				'matriz',
 				'token'
 			],
-			where: { id }
+			where: { id },
+			relations: {
+				company: true
+			}
 		})
 
 		if (!id) {

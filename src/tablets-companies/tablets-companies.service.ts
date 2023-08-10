@@ -26,22 +26,7 @@ export class TabletsCompaniesService {
 		return await this.tabletsCompanyRepository.find({
 			select: [
 				'id',
-				'companyId',
-				'matriz',
-				'terminal',
-				'uuid',
-				'status',
-				'dataInstalacao',
-				'token'
-			]
-		})
-	}
-
-	async findOne(id: number): Promise<TabletsCompany> {
-		const tabletsCompany = await this.tabletsCompanyRepository.findOneOrFail({
-			select: [
-				'id',
-				'companyId',
+				'company',
 				'matriz',
 				'terminal',
 				'uuid',
@@ -49,7 +34,28 @@ export class TabletsCompaniesService {
 				'dataInstalacao',
 				'token'
 			],
-			where: { id }
+			relations: {
+				company: true
+			}
+		})
+	}
+
+	async findOne(id: number): Promise<TabletsCompany> {
+		const tabletsCompany = await this.tabletsCompanyRepository.findOneOrFail({
+			select: [
+				'id',
+				'company',
+				'matriz',
+				'terminal',
+				'uuid',
+				'status',
+				'dataInstalacao',
+				'token'
+			],
+			where: { id },
+			relations: {
+				company: true
+			}
 		})
 
 		if (!id) {

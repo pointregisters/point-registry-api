@@ -22,16 +22,19 @@ export class MovementsService {
 		return await this.movementRepository.find({
 			select: [
 				'id',
-				'employeePis',
 				'date',
 				'register',
-				'companyId',
+				'companies',
+				'employees',
 				'latitude',
 				'longitude',
 				'type',
-				'companyRegister',
 				'nsr'
-			]
+			],
+			relations: {
+				companies: true,
+				employees: true
+			}
 		})
 	}
 
@@ -39,17 +42,20 @@ export class MovementsService {
 		const movement = await this.movementRepository.findOneOrFail({
 			select: [
 				'id',
-				'employeePis',
 				'date',
 				'register',
-				'companyId',
+				'companies',
+				'employees',
 				'latitude',
 				'longitude',
 				'type',
-				'companyRegister',
 				'nsr'
 			],
-			where: { id }
+			where: { id },
+			relations: {
+				companies: true,
+				employees: true
+			}
 		})
 
 		if (!id) {
