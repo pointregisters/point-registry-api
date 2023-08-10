@@ -1,9 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger'
+import { Company } from 'src/companies/entities/company.entity'
 import {
 	Column,
 	CreateDateColumn,
 	DeleteDateColumn,
 	Entity,
+	ManyToOne,
 	PrimaryGeneratedColumn,
 	UpdateDateColumn
 } from 'typeorm'
@@ -41,6 +43,10 @@ export class TabletsCompany {
 	@Column()
 	@ApiProperty()
 	token: string
+
+	@ManyToOne(() => Company, (company) => company.tabletsCompany)
+	@ApiProperty()
+	company: Company
 
 	@CreateDateColumn({
 		type: 'timestamp',

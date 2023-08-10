@@ -1,9 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger'
+import { Employee } from 'src/employees/entities/employee.entity'
+import { Movement } from 'src/movements/entities/movement.entity'
+import { TabletsCompany } from 'src/tablets-companies/entities/tablets-company.entity'
 import {
 	Column,
 	CreateDateColumn,
 	DeleteDateColumn,
 	Entity,
+	ManyToMany,
+	OneToMany,
 	PrimaryGeneratedColumn,
 	UpdateDateColumn
 } from 'typeorm'
@@ -37,6 +42,15 @@ export class Company {
 	@Column()
 	@ApiProperty()
 	token: string
+
+	@OneToMany(() => Employee, (employee) => employee.company)
+	employee: Employee[]
+
+	@OneToMany(() => TabletsCompany, (tabletsCompany) => tabletsCompany.company)
+	tabletsCompany: TabletsCompany[]
+
+	@ManyToMany(() => Movement, (movement) => movement.companies)
+	movements: Movement[]
 
 	@CreateDateColumn({
 		type: 'timestamp',

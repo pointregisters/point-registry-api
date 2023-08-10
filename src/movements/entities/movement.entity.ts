@@ -1,10 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger'
+import { Company } from 'src/companies/entities/company.entity'
+import { Employee } from 'src/employees/entities/employee.entity'
 import {
 	BeforeInsert,
 	Column,
 	CreateDateColumn,
 	DeleteDateColumn,
 	Entity,
+	ManyToMany,
 	PrimaryGeneratedColumn,
 	UpdateDateColumn
 } from 'typeorm'
@@ -29,9 +32,17 @@ export class Movement {
 	@ApiProperty()
 	register: string
 
-	@Column({ name: 'company_id' })
-	@ApiProperty()
-	companyId: string
+	// @Column({ name: 'company_id' })
+	// @ApiProperty()
+	// companyId: string
+
+	@ManyToMany(() => Company, (company) => company.movements)
+	// @JoinTable()
+	companies: Company[]
+
+	@ManyToMany(() => Employee, (employee) => employee.movements)
+	// @JoinTable()
+	employees: Employee[]
 
 	@Column()
 	@ApiProperty()
