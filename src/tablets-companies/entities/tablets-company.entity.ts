@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { Company } from 'src/companies/entities/company.entity'
 import {
+	BeforeInsert,
 	Column,
 	CreateDateColumn,
 	DeleteDateColumn,
@@ -10,15 +11,13 @@ import {
 	UpdateDateColumn
 } from 'typeorm'
 
+import { v4 as uuidv4 } from 'uuid'
+
 @Entity('tablets_companies')
 export class TabletsCompany {
 	@PrimaryGeneratedColumn()
 	@ApiProperty()
 	id: number
-
-	@Column({ name: 'razao_social' })
-	@ApiProperty()
-	companyId: string
 
 	@Column()
 	@ApiProperty()
@@ -32,13 +31,13 @@ export class TabletsCompany {
 	@ApiProperty()
 	uuid: string
 
-	@Column()
+	@Column({ default: true })
 	@ApiProperty()
-	status: number
+	status: boolean
 
-	@Column({ name: 'data_registro' })
+	@Column({ name: ' data_instalacao', default: null })
 	@ApiProperty()
-	dataInstalacao: string
+	dataInstalacao: Date
 
 	@Column()
 	@ApiProperty()
@@ -47,6 +46,14 @@ export class TabletsCompany {
 	@ManyToOne(() => Company, (company) => company.tabletsCompany)
 	@ApiProperty()
 	company: Company
+
+	@CreateDateColumn({
+		type: 'timestamp',
+		name: 'data_registro',
+		default: () => 'CURRENT_TIMESTAMP(6)'
+	})
+	@ApiProperty()
+	dataRegistro: Date
 
 	@CreateDateColumn({
 		type: 'timestamp',
@@ -71,4 +78,10 @@ export class TabletsCompany {
 	})
 	@ApiProperty()
 	deletedAt: Date
+
+	@BeforeInsert()
+	generateToken() {
+		this.token = uuidv4()
+		this.uuid = uuidv4()
+	}
 }

@@ -14,27 +14,39 @@ import {
 
 import { v4 as uuidv4 } from 'uuid'
 
+export enum MovementType {
+	'BIOMETRIA' = 'biometria',
+	'MATRICULA' = 'matricula',
+	'FOTO CELULAR' = 'foto celular',
+	'QRCODE' = 'qrcode',
+	'Relogio' = 'relogio'
+}
+
 @Entity()
 export class Movement {
 	@PrimaryGeneratedColumn('uuid')
 	@ApiProperty()
 	id: string
 
-	@Column({ name: 'employee_pis' })
+	@Column({
+		type: 'timestamp',
+		name: 'date',
+		default: () => 'CURRENT_TIMESTAMP(6)'
+	})
 	@ApiProperty()
-	employeePis: string
+	date: Date
 
-	@Column()
+	@Column({ default: null })
 	@ApiProperty()
-	date: string
+	image: string
 
-	@Column()
+	@CreateDateColumn({
+		type: 'timestamp',
+		name: 'register',
+		default: () => 'CURRENT_TIMESTAMP(6)'
+	})
 	@ApiProperty()
 	register: string
-
-	// @Column({ name: 'company_id' })
-	// @ApiProperty()
-	// companyId: string
 
 	@ManyToMany(() => Company, (company) => company.movements)
 	// @JoinTable()
@@ -44,23 +56,23 @@ export class Movement {
 	// @JoinTable()
 	employees: Employee[]
 
-	@Column()
+	@Column({ default: null })
 	@ApiProperty()
 	latitude: string
 
-	@Column()
+	@Column({ default: null })
 	@ApiProperty()
 	longitude: string
 
-	@Column()
+	@Column({
+		type: 'varchar',
+		default: MovementType.BIOMETRIA,
+		name: 'MovementType'
+	})
 	@ApiProperty()
-	type: number
+	type: MovementType
 
-	@Column({ name: 'company_register' })
-	@ApiProperty()
-	companyRegister: string
-
-	@Column()
+	@Column({ default: null })
 	@ApiProperty()
 	nsr: string
 
@@ -89,7 +101,10 @@ export class Movement {
 	deletedAt: Date
 
 	@BeforeInsert()
-	generateUUID() {
+	generateUUIDAndDate() {
 		this.id = uuidv4()
+		if (this.date instanceof Date) {
+			this.date = new Date(this.date.toDateString())
+		}
 	}
 }

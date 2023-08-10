@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger'
 import { Company } from 'src/companies/entities/company.entity'
 import { Movement } from 'src/movements/entities/movement.entity'
 import {
+	BeforeInsert,
 	Column,
 	CreateDateColumn,
 	DeleteDateColumn,
@@ -12,13 +13,15 @@ import {
 	UpdateDateColumn
 } from 'typeorm'
 
+import { v4 as uuidv4 } from 'uuid'
+
 @Entity()
 export class Employee {
 	@PrimaryGeneratedColumn()
 	@ApiProperty()
 	id: number
 
-	@Column()
+	@Column({ default: null })
 	@ApiProperty()
 	image: string
 
@@ -34,10 +37,6 @@ export class Employee {
 	@ApiProperty()
 	registration: string
 
-	// @Column({ name: 'companie_id' })
-	// @ApiProperty()
-	// companyId: number
-
 	@ManyToOne(() => Company, (company) => company.employee)
 	@ApiProperty()
 	company: Company
@@ -49,11 +48,11 @@ export class Employee {
 	@ApiProperty()
 	contract: number
 
-	@Column({ name: 'phone_uuid' })
+	@Column({ name: 'phone_uuid', default: null })
 	@ApiProperty()
 	phoneUuid: number
 
-	@Column({ name: 'phone_status' })
+	@Column({ name: 'phone_status', default: null })
 	@ApiProperty()
 	phoneStatus: number
 
@@ -88,4 +87,9 @@ export class Employee {
 	})
 	@ApiProperty()
 	deletedAt: Date
+
+	@BeforeInsert()
+	generateToken() {
+		this.token = uuidv4()
+	}
 }

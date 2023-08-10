@@ -3,6 +3,7 @@ import { Employee } from 'src/employees/entities/employee.entity'
 import { Movement } from 'src/movements/entities/movement.entity'
 import { TabletsCompany } from 'src/tablets-companies/entities/tablets-company.entity'
 import {
+	BeforeInsert,
 	Column,
 	CreateDateColumn,
 	DeleteDateColumn,
@@ -12,6 +13,13 @@ import {
 	PrimaryGeneratedColumn,
 	UpdateDateColumn
 } from 'typeorm'
+
+import { v4 as uuidv4 } from 'uuid'
+
+export enum Type {
+	MATRIZ = 'matriz',
+	FILIAL = 'filial'
+}
 
 @Entity()
 export class Company {
@@ -27,9 +35,9 @@ export class Company {
 	@ApiProperty()
 	cnpj: string
 
-	@Column()
+	@Column({ type: 'varchar', default: Type.MATRIZ, name: 'type' })
 	@ApiProperty()
-	type: number
+	type: Type
 
 	@Column({ name: 'id_matriz' })
 	@ApiProperty()
@@ -75,4 +83,9 @@ export class Company {
 	})
 	@ApiProperty()
 	deletedAt: Date
+
+	@BeforeInsert()
+	generateToken() {
+		this.token = uuidv4()
+	}
 }
