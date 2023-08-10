@@ -1,33 +1,41 @@
-import { IsNotEmpty } from 'class-validator'
+import { ApiProperty } from '@nestjs/swagger'
+import { IsNotEmpty, IsOptional } from 'class-validator'
+import { Company } from 'src/companies/entities/company.entity'
+import { Employee } from 'src/employees/entities/employee.entity'
 
+export enum MovementType {
+	'BIOMETRIA' = 'biometria',
+	'MATRICULA' = 'matricula',
+	'FOTO CELULAR' = 'foto celular',
+	'QRCODE' = 'qrcode',
+	'Relogio' = 'relogio'
+}
 export class CreateMovementDto {
+	@ApiProperty()
 	@IsNotEmpty()
-	uuuid: number
+	employee: Employee
 
-	@IsNotEmpty()
-	employeePis: string
+	@ApiProperty()
+	@IsOptional()
+	image: string
 
+	@ApiProperty()
 	@IsNotEmpty()
-	date: string
+	company: Company
 
-	@IsNotEmpty()
-	register: string
-
-	@IsNotEmpty()
-	companyId: string
-
-	@IsNotEmpty()
+	@ApiProperty()
+	@IsOptional()
 	latitude: string
 
-	@IsNotEmpty()
+	@ApiProperty()
+	@IsOptional()
 	longitude: string
 
+	@ApiProperty()
 	@IsNotEmpty()
-	type: number
+	type: MovementType
 
-	@IsNotEmpty()
-	companyRegister: string
-
-	@IsNotEmpty()
+	@ApiProperty()
+	@IsOptional()
 	nsr: string
 }

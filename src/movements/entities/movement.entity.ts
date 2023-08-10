@@ -1,45 +1,79 @@
+import { ApiProperty } from '@nestjs/swagger'
+import { Company } from 'src/companies/entities/company.entity'
+import { Employee } from 'src/employees/entities/employee.entity'
 import {
 	BeforeInsert,
 	Column,
 	CreateDateColumn,
 	DeleteDateColumn,
 	Entity,
+	ManyToMany,
 	PrimaryGeneratedColumn,
 	UpdateDateColumn
 } from 'typeorm'
 
 import { v4 as uuidv4 } from 'uuid'
 
+export enum MovementType {
+	'BIOMETRIA' = 'biometria',
+	'MATRICULA' = 'matricula',
+	'FOTO CELULAR' = 'foto celular',
+	'QRCODE' = 'qrcode',
+	'Relogio' = 'relogio'
+}
+
 @Entity()
 export class Movement {
 	@PrimaryGeneratedColumn('uuid')
+	@ApiProperty()
 	id: string
 
-	@Column({ name: 'employee_pis' })
-	employeePis: string
+	@Column({
+		type: 'timestamp',
+		name: 'date',
+		default: () => 'CURRENT_TIMESTAMP(6)'
+	})
+	@ApiProperty()
+	date: Date
 
-	@Column()
-	date: string
+	@Column({ default: null })
+	@ApiProperty()
+	image: string
 
-	@Column()
+	@CreateDateColumn({
+		type: 'timestamp',
+		name: 'register',
+		default: () => 'CURRENT_TIMESTAMP(6)'
+	})
+	@ApiProperty()
 	register: string
 
-	@Column({ name: 'company_id' })
-	companyId: string
+	@ManyToMany(() => Company, (company) => company.movements)
+	// @JoinTable()
+	companies: Company[]
 
-	@Column()
+	@ManyToMany(() => Employee, (employee) => employee.movements)
+	// @JoinTable()
+	employees: Employee[]
+
+	@Column({ default: null })
+	@ApiProperty()
 	latitude: string
 
-	@Column()
+	@Column({ default: null })
+	@ApiProperty()
 	longitude: string
 
-	@Column()
-	type: number
+	@Column({
+		type: 'varchar',
+		default: MovementType.BIOMETRIA,
+		name: 'MovementType'
+	})
+	@ApiProperty()
+	type: MovementType
 
-	@Column({ name: 'company_register' })
-	companyRegister: string
-
-	@Column()
+	@Column({ default: null })
+	@ApiProperty()
 	nsr: string
 
 	@CreateDateColumn({
@@ -47,6 +81,7 @@ export class Movement {
 		name: 'create_at',
 		default: () => 'CURRENT_TIMESTAMP(6)'
 	})
+	@ApiProperty()
 	createAt: Date
 
 	@UpdateDateColumn({
@@ -55,16 +90,21 @@ export class Movement {
 		default: () => 'CURRENT_TIMESTAMP(6)',
 		onUpdate: 'CURRENT_TIMESTAMP(6)'
 	})
+	@ApiProperty()
 	updateAt: Date
 
 	@DeleteDateColumn({
 		type: 'timestamp',
 		name: 'deleted_at'
 	})
+	@ApiProperty()
 	deletedAt: Date
 
 	@BeforeInsert()
-	generateUUID() {
+	generateUUIDAndDate() {
 		this.id = uuidv4()
+		if (this.date instanceof Date) {
+			this.date = new Date(this.date.toDateString())
+		}
 	}
 }

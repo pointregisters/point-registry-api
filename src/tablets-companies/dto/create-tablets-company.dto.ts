@@ -1,27 +1,25 @@
-import { IsNotEmpty } from 'class-validator'
+import { ApiProperty } from '@nestjs/swagger'
+import { IsNotEmpty, IsOptional } from 'class-validator'
+import { Company } from 'src/companies/entities/company.entity'
 
 export class CreateTabletsCompanyDto {
+	@ApiProperty()
 	@IsNotEmpty()
-	id: number
+	company: Company
 
-	@IsNotEmpty()
-	companyId: string
-
+	@ApiProperty()
 	@IsNotEmpty()
 	matriz: number
 
+	@ApiProperty()
 	@IsNotEmpty()
 	terminal: string
 
+	@ApiProperty()
 	@IsNotEmpty()
-	uuid: string
+	status: boolean
 
-	@IsNotEmpty()
-	status: number
-
-	@IsNotEmpty()
+	@ApiProperty()
+	@IsOptional()
 	dataInstalacao: string
-
-	@IsNotEmpty()
-	token: string
 }
