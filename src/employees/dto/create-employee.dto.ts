@@ -1,12 +1,9 @@
-import { IsNotEmpty } from 'class-validator'
+import { IsNotEmpty, IsOptional } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
+import { Company } from 'src/companies/entities/company.entity'
 export class CreateEmployeeDto {
 	@ApiProperty()
-	@IsNotEmpty()
-	id: number
-
-	@ApiProperty()
-	@IsNotEmpty()
+	@IsOptional()
 	image: string
 
 	@ApiProperty()
@@ -23,25 +20,21 @@ export class CreateEmployeeDto {
 
 	@ApiProperty()
 	@IsNotEmpty()
-	companyId: number
+	company: Company
 
 	@ApiProperty()
 	@IsNotEmpty()
 	contract: number
 
 	@ApiProperty()
-	@IsNotEmpty()
+	@IsOptional()
 	phoneUuid: number
 
 	@ApiProperty()
-	@IsNotEmpty()
+	@IsOptional()
 	phoneStatus: number
 
 	@ApiProperty()
 	@IsNotEmpty()
 	matriz: number
-
-	@ApiProperty()
-	@IsNotEmpty()
-	token: string
 }

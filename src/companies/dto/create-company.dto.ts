@@ -1,11 +1,11 @@
 import { IsNotEmpty } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
 
+export enum Type {
+	MATRIZ = 'matriz',
+	FILIAL = 'filial'
+}
 export class CreateCompanyDto {
-	@ApiProperty()
-	@IsNotEmpty()
-	id: number
-
 	@ApiProperty()
 	@IsNotEmpty()
 	razaoSocial: string
@@ -16,7 +16,7 @@ export class CreateCompanyDto {
 
 	@ApiProperty()
 	@IsNotEmpty()
-	type: number
+	type: Type
 
 	@ApiProperty()
 	@IsNotEmpty()
@@ -25,8 +25,4 @@ export class CreateCompanyDto {
 	@ApiProperty()
 	@IsNotEmpty()
 	matriz: number
-
-	@ApiProperty()
-	@IsNotEmpty()
-	token: string
 }
