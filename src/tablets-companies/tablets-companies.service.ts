@@ -64,6 +64,32 @@ export class TabletsCompaniesService {
 		return tabletsCompany
 	}
 
+	async findToken(token: string): Promise<TabletsCompany> {
+		const tabletsCompany = await this.tabletsCompanyRepository.findOneOrFail({
+			select: [
+				'id',
+				'company',
+				'matriz',
+				'terminal',
+				'uuid',
+				'status',
+				'dataInstalacao',
+				'token'
+			],
+			where: { token },
+			relations: {
+				company: true
+			}
+		})
+
+		if (!token) {
+			throw new NotFoundException(
+				`Não achei um TabletsCompany com o token ${token}`
+			)
+		}
+		return tabletsCompany
+	}
+
 	async update(
 		id: number,
 		updateTabletsCompanyDto: UpdateTabletsCompanyDto
