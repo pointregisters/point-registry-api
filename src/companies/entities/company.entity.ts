@@ -8,7 +8,6 @@ import {
 	CreateDateColumn,
 	DeleteDateColumn,
 	Entity,
-	ManyToMany,
 	OneToMany,
 	PrimaryGeneratedColumn,
 	UpdateDateColumn
@@ -57,7 +56,7 @@ export class Company {
 	@OneToMany(() => TabletsCompany, (tabletsCompany) => tabletsCompany.company)
 	tabletsCompany: TabletsCompany[]
 
-	@ManyToMany(() => Movement, (movement) => movement.companies)
+	@OneToMany(() => Movement, (movement) => movement.company)
 	movements: Movement[]
 
 	@CreateDateColumn({
