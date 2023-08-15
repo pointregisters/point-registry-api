@@ -25,6 +25,11 @@ export class AuthController {
 		return this.authService.loginForToken(token)
 	}
 
+	@Get('registration/:registration')
+	loginForRegistration(@Param('registration') registration: string) {
+		return this.authService.loginForRegistration(registration)
+	}
+
 	@Get()
 	findAll() {
 		return this.authService.findAll()
