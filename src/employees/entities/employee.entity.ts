@@ -7,8 +7,8 @@ import {
 	CreateDateColumn,
 	DeleteDateColumn,
 	Entity,
-	ManyToMany,
 	ManyToOne,
+	OneToMany,
 	PrimaryGeneratedColumn,
 	UpdateDateColumn
 } from 'typeorm'
@@ -41,7 +41,7 @@ export class Employee {
 	@ApiProperty()
 	company: Company
 
-	@ManyToMany(() => Movement, (movement) => movement.employees)
+	@OneToMany(() => Movement, (movement) => movement.employee)
 	movements: Movement[]
 
 	@Column()

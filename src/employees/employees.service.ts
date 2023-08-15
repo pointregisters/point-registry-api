@@ -31,9 +31,11 @@ export class EmployeesService {
 				'phoneUuid',
 				'phoneStatus',
 				'matriz',
+				// 'movements'
 				'token'
 			],
 			relations: {
+				// movements: true,
 				company: true
 			}
 		})
@@ -62,6 +64,35 @@ export class EmployeesService {
 
 		if (!id) {
 			throw new NotFoundException(`Não achei um Employee com o id ${id}`)
+		}
+		return User
+	}
+
+	async findRegistration(registration: string): Promise<Employee> {
+		const User = await this.employeeRepository.findOneOrFail({
+			select: [
+				'id',
+				'image',
+				'pis',
+				'name',
+				'registration',
+				'company',
+				'contract',
+				'phoneUuid',
+				'phoneStatus',
+				'matriz',
+				'token'
+			],
+			where: { registration },
+			relations: {
+				company: true
+			}
+		})
+
+		if (!registration) {
+			throw new NotFoundException(
+				`Não achei um Employee com o registration ${registration}`
+			)
 		}
 		return User
 	}

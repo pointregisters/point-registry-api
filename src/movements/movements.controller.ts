@@ -33,6 +33,13 @@ export class MovementsController {
 		return await this.movementsService.findAll()
 	}
 
+	@Get('registration/:registration')
+	async findForRegistration(
+		@Param('registration') registration: string
+	): Promise<Movement[]> {
+		return await this.movementsService.findForRegistration(registration)
+	}
+
 	@Get(':id')
 	async findOne(@Param('id') id: string): Promise<Movement> {
 		return await this.movementsService.findOne(id)

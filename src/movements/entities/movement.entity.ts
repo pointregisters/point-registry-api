@@ -7,7 +7,7 @@ import {
 	CreateDateColumn,
 	DeleteDateColumn,
 	Entity,
-	ManyToMany,
+	ManyToOne,
 	PrimaryGeneratedColumn,
 	UpdateDateColumn
 } from 'typeorm'
@@ -48,13 +48,11 @@ export class Movement {
 	@ApiProperty()
 	register: string
 
-	@ManyToMany(() => Company, (company) => company.movements)
-	// @JoinTable()
-	companies: Company[]
+	@ManyToOne(() => Company, (company) => company.movements)
+	company: Company
 
-	@ManyToMany(() => Employee, (employee) => employee.movements)
-	// @JoinTable()
-	employees: Employee[]
+	@ManyToOne(() => Employee, (employee) => employee.movements)
+	employee: Employee
 
 	@Column({ default: null })
 	@ApiProperty()

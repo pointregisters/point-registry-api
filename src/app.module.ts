@@ -7,6 +7,7 @@ import { TabletsCompaniesModule } from './tablets-companies/tablets-companies.mo
 import { MovementsModule } from './movements/movements.module'
 import { DatabaseModule } from './database/database.module'
 import { ConfigModule } from '@nestjs/config'
+import { AuthModule } from './auth/auth.module'
 import * as Joi from '@hapi/joi'
 
 @Module({
@@ -25,7 +26,8 @@ import * as Joi from '@hapi/joi'
 		CompaniesModule,
 		TabletsCompaniesModule,
 		MovementsModule,
-		DatabaseModule
+		DatabaseModule,
+		AuthModule
 	],
 	controllers: [AppController],
 	providers: [AppService]

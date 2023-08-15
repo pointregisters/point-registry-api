@@ -24,16 +24,16 @@ export class MovementsService {
 				'id',
 				'date',
 				'register',
-				'companies',
-				'employees',
+				'company',
+				'employee',
 				'latitude',
 				'longitude',
 				'type',
 				'nsr'
 			],
 			relations: {
-				companies: true,
-				employees: true
+				company: true,
+				employee: true
 			}
 		})
 	}
@@ -44,8 +44,8 @@ export class MovementsService {
 				'id',
 				'date',
 				'register',
-				'companies',
-				'employees',
+				'company',
+				'employee',
 				'latitude',
 				'longitude',
 				'type',
@@ -53,8 +53,8 @@ export class MovementsService {
 			],
 			where: { id },
 			relations: {
-				companies: true,
-				employees: true
+				company: true,
+				employee: true
 			}
 		})
 
@@ -62,6 +62,38 @@ export class MovementsService {
 			throw new NotFoundException(`Não achei um Company com o id ${id}`)
 		}
 		return movement
+	}
+
+	async findForRegistration(registration: string): Promise<Movement[]> {
+		const movements = await this.movementRepository.find({
+			select: [
+				'id',
+				'date',
+				'register',
+				'company',
+				'employee',
+				'latitude',
+				'longitude',
+				'type',
+				'nsr'
+			],
+			where: {
+				employee: {
+					registration: registration
+				}
+			},
+			relations: {
+				company: true,
+				employee: true
+			}
+		})
+
+		if (!movements || movements.length === 0) {
+			throw new NotFoundException(
+				`Não foram encontrados Movements para o registration Nº ${registration}`
+			)
+		}
+		return movements
 	}
 
 	async update(
