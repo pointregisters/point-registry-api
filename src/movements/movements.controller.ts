@@ -7,13 +7,17 @@ import {
 	Param,
 	Delete,
 	HttpCode,
-	HttpStatus
+	HttpStatus,
+	UseInterceptors,
+	UploadedFile,
+	UploadedFiles
 } from '@nestjs/common'
 import { MovementsService } from './movements.service'
 import { CreateMovementDto } from './dto/create-movement.dto'
 import { UpdateMovementDto } from './dto/update-movement.dto'
 import { Movement } from './entities/movement.entity'
 import { ApiBody, ApiTags } from '@nestjs/swagger'
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express'
 
 @Controller('movements')
 @ApiTags('Movements')
@@ -22,10 +26,39 @@ export class MovementsController {
 
 	@Post()
 	@ApiBody({ type: CreateMovementDto })
+	@UseInterceptors(FileInterceptor('file'))
 	async create(
-		@Body() createMovementDto: CreateMovementDto
+		@Body() createMovementDto: CreateMovementDto,
+		@UploadedFile() file: Express.Multer.File
 	): Promise<Movement> {
-		return await this.movementsService.create(createMovementDto)
+		return await this.movementsService.create(createMovementDto, file)
+	}
+
+	@Post('synchronize')
+	@ApiBody({ type: CreateMovementDto })
+	@UseInterceptors(FileInterceptor('file'))
+	async createBach(
+		@Body() createMovementDto: CreateMovementDto,
+		@UploadedFile() file: Express.Multer.File
+	): Promise<Movement> {
+		return await this.movementsService.createBach(createMovementDto, file)
+	}
+
+	@Post('batch')
+	@ApiBody({ type: [CreateMovementDto], isArray: true })
+	@UseInterceptors(FilesInterceptor('file'))
+	async createBatch(
+		@Body() createMovementDtos: CreateMovementDto[],
+		@UploadedFiles() files: Express.Multer.File[]
+	): Promise<Movement[]> {
+		const movements: Movement[] = []
+
+		for (let i = 0; i < createMovementDtos.length; i++) {
+			const movement = await this.create(createMovementDtos[i], files[i])
+			movements.push(movement)
+		}
+
+		return movements
 	}
 
 	@Get()
