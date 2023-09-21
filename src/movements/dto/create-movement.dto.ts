@@ -25,6 +25,14 @@ export class CreateMovementDto {
 
 	@ApiProperty()
 	@IsOptional()
+	registration: string
+
+	@ApiProperty()
+	@IsOptional()
+	date: Date
+
+	@ApiProperty()
+	@IsOptional()
 	latitude: string
 
 	@ApiProperty()
