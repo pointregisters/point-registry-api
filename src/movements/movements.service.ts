@@ -31,16 +31,10 @@ export class MovementsService {
 		file: Express.Multer.File
 	): Promise<Movement> {
 		createMovementDto.image = await this.addFile(file)
-		createMovementDto.employee = await this.getEmployee(
-			createMovementDto.registration
-		)
+
 		const movement = this.movementRepository.create(createMovementDto)
 
 		return await this.movementRepository.save(movement)
-	}
-
-	async getEmployee(registration: string) {
-		return await this.employeeService.findRegistration(registration)
 	}
 
 	async addFile(file: Express.Multer.File): Promise<string> {
@@ -56,47 +50,45 @@ export class MovementsService {
 	async findAll(): Promise<Movement[]> {
 		return await this.movementRepository.find({
 			select: [
-				'id',
+				'uuid',
 				'image',
 				'date',
 				'register',
 				'company',
-				'employee',
+				'employeePis',
 				'latitude',
 				'longitude',
 				'type',
 				'nsr'
 			],
 			relations: {
-				company: true,
-				employee: true
+				company: true
 			}
 		})
 	}
 
-	async findOne(id: string): Promise<Movement> {
-		const movement = await this.movementRepository.findOneOrFail({
+	async findOne(uuid: string): Promise<Movement> {
+		const movement = await this.movementRepository.findOne({
 			select: [
-				'id',
+				'uuid',
 				'image',
 				'date',
 				'register',
 				'company',
-				'employee',
+				'employeePis',
 				'latitude',
 				'longitude',
 				'type',
 				'nsr'
 			],
-			where: { id },
+			where: { uuid },
 			relations: {
-				company: true,
-				employee: true
+				company: true
 			}
 		})
 
-		if (!id) {
-			throw new NotFoundException(`Não achei um Company com o id ${id}`)
+		if (!uuid) {
+			throw new NotFoundException(`Não achei um Company com o uuid ${uuid}`)
 		}
 		return movement
 	}
@@ -104,25 +96,24 @@ export class MovementsService {
 	async findForRegistration(registration: string): Promise<Movement[]> {
 		const movements = await this.movementRepository.find({
 			select: [
-				'id',
+				'uuid',
 				'image',
 				'date',
 				'register',
 				'company',
-				'employee',
+				'employeePis',
 				'latitude',
 				'longitude',
 				'type',
 				'nsr'
 			],
-			where: {
-				employee: {
-					registration: registration
-				}
-			},
+			// where: {
+			// 	employee: {
+			// 		registration: registration
+			// 	}
+			// },
 			relations: {
-				company: true,
-				employee: true
+				company: true
 			}
 		})
 
@@ -144,12 +135,12 @@ export class MovementsService {
 		await this.movementRepository.save(movement)
 	}
 
-	async remove(id: string): Promise<void> {
-		await this.findOne(id)
+	async remove(uuid: string): Promise<void> {
+		await this.findOne(uuid)
 
-		if (!id) {
-			throw new NotFoundException(`Não achei um Company com o id ${id}`)
+		if (!uuid) {
+			throw new NotFoundException(`Não achei um Company com o id ${uuid}`)
 		}
-		this.movementRepository.softDelete({ id })
+		this.movementRepository.softDelete({ uuid })
 	}
 }
