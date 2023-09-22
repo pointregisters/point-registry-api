@@ -22,26 +22,32 @@ export class CompaniesService {
 		return await this.companyRepository.find({
 			select: [
 				'id',
-				'razaoSocial',
+				'name',
 				'cnpj',
 				'type',
-				'matrizId',
 				'matriz',
-				'token'
+				'dateContrato',
+				'email',
+				'login',
+				'senha',
+				'regionId'
 			]
 		})
 	}
 
 	async findOne(id: number): Promise<Company> {
-		const User = await this.companyRepository.findOneOrFail({
+		const User = await this.companyRepository.findOne({
 			select: [
 				'id',
-				'razaoSocial',
+				'name',
 				'cnpj',
 				'type',
-				'matrizId',
 				'matriz',
-				'token'
+				'dateContrato',
+				'email',
+				'login',
+				'senha',
+				'regionId'
 			],
 			where: { id }
 		})
