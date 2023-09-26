@@ -1,16 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { Company } from 'src/companies/entities/company.entity'
 import { Employee } from 'src/employees/entities/employee.entity'
-import {
-	BeforeInsert,
-	Column,
-	CreateDateColumn,
-	DeleteDateColumn,
-	Entity,
-	ManyToOne,
-	PrimaryGeneratedColumn,
-	UpdateDateColumn
-} from 'typeorm'
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm'
 
 import { v4 as uuidv4 } from 'uuid'
 
@@ -24,85 +15,40 @@ export enum MovementType {
 
 @Entity()
 export class Movement {
-	@PrimaryGeneratedColumn('uuid')
-	@ApiProperty()
-	id: string
+	@PrimaryColumn({ length: 150, collation: 'utf8mb4_unicode_ci' })
+	uuid: string
 
-	@Column({
-		type: 'timestamp',
-		name: 'date',
-		default: () => 'CURRENT_TIMESTAMP(6)'
-	})
-	@ApiProperty()
+	@Column({ length: 20, collation: 'utf8mb4_unicode_ci', nullable: true })
+	employeePis: string
+
+	@Column({ type: 'date' })
 	date: Date
 
-	@Column({ default: null })
-	@ApiProperty()
+	@Column({ type: 'datetime' })
+	register: Date
+
+	@Column({ length: 191, collation: 'utf8mb4_unicode_ci', nullable: true })
 	image: string
 
-	@CreateDateColumn({
-		type: 'timestamp',
-		name: 'register',
-		default: () => 'CURRENT_TIMESTAMP(6)'
-	})
-	@ApiProperty()
-	register: string
-
 	@ManyToOne(() => Company, (company) => company.movements)
+	@JoinColumn({ name: 'companie_id' })
 	company: Company
 
-	@ManyToOne(() => Employee, (employee) => employee.movements)
-	employee: Employee
-
-	@Column({ default: null })
-	@ApiProperty()
+	@Column({ type: 'text', collation: 'utf8mb4_unicode_ci', nullable: true })
 	latitude: string
 
-	@Column({ default: null })
-	@ApiProperty()
+	@Column({ type: 'text', collation: 'utf8mb4_unicode_ci', nullable: true })
 	longitude: string
 
-	@Column({
-		type: 'varchar',
-		default: MovementType.BIOMETRIA,
-		name: 'MovementType'
-	})
-	@ApiProperty()
-	type: MovementType
+	@Column({ nullable: true })
+	type: number
 
-	@Column({ default: null })
-	@ApiProperty()
+	@Column({ name: 'companie_register', nullable: true })
+	companieRegister: number
+
+	@Column({ length: 150, collation: 'utf8mb4_unicode_ci', nullable: true })
 	nsr: string
 
-	@CreateDateColumn({
-		type: 'timestamp',
-		name: 'create_at',
-		default: () => 'CURRENT_TIMESTAMP(6)'
-	})
-	@ApiProperty()
-	createAt: Date
-
-	@UpdateDateColumn({
-		type: 'timestamp',
-		name: 'update_at',
-		default: () => 'CURRENT_TIMESTAMP(6)',
-		onUpdate: 'CURRENT_TIMESTAMP(6)'
-	})
-	@ApiProperty()
-	updateAt: Date
-
-	@DeleteDateColumn({
-		type: 'timestamp',
-		name: 'deleted_at'
-	})
-	@ApiProperty()
-	deletedAt: Date
-
-	@BeforeInsert()
-	generateUUIDAndDate() {
-		this.id = uuidv4()
-		if (this.date instanceof Date) {
-			this.date = new Date(this.date.toDateString())
-		}
-	}
+	@Column({ nullable: true, name: 'relogio_id' })
+	relogioId: number
 }

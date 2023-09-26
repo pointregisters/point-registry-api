@@ -5,6 +5,7 @@ import { Employee } from 'src/employees/entities/employee.entity'
 import { Movement } from 'src/movements/entities/movement.entity'
 import { TabletsCompany } from 'src/tablets-companies/entities/tablets-company.entity'
 import { Company } from 'src/companies/entities/company.entity'
+import { Region } from 'src/region/entities/region.entity'
 
 @Module({
 	imports: [
@@ -12,15 +13,15 @@ import { Company } from 'src/companies/entities/company.entity'
 			imports: [ConfigModule],
 			inject: [ConfigService],
 			useFactory: (configService: ConfigService) => ({
-				type: 'postgres',
-				host: configService.get('POSTGRES_HOST'),
-				port: configService.get('POSTGRES_PORT'),
-				username: configService.get('POSTGRES_USER'),
-				password: configService.get('POSTGRES_PASSWORD'),
-				database: configService.get('POSTGRES_DB'),
-				synchronize: true,
-				// logging: true,
-				entities: [Employee, Movement, TabletsCompany, Company]
+				type: 'mysql',
+				host: configService.get('DB_HOST'),
+				port: configService.get('DB_PORT'),
+				username: configService.get('DB_USER'),
+				password: configService.get('DB_PASSWORD'),
+				database: configService.get('DB_DATABASE'),
+				synchronize: false,
+				logging: true,
+				entities: [Employee, Movement, TabletsCompany, Company, Region]
 			})
 		})
 	]

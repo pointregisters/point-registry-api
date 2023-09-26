@@ -1,16 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { Company } from 'src/companies/entities/company.entity'
-import { Movement } from 'src/movements/entities/movement.entity'
 import {
-	BeforeInsert,
 	Column,
-	CreateDateColumn,
-	DeleteDateColumn,
 	Entity,
+	JoinColumn,
 	ManyToOne,
-	OneToMany,
-	PrimaryGeneratedColumn,
-	UpdateDateColumn
+	PrimaryGeneratedColumn
 } from 'typeorm'
 
 import { v4 as uuidv4 } from 'uuid'
@@ -18,78 +13,56 @@ import { v4 as uuidv4 } from 'uuid'
 @Entity()
 export class Employee {
 	@PrimaryGeneratedColumn()
-	@ApiProperty()
 	id: number
 
-	@Column({ default: null })
-	@ApiProperty()
-	image: string
-
-	@Column()
-	@ApiProperty()
-	pis: string
-
-	@Column()
-	@ApiProperty()
+	@Column({ length: 191, collation: 'utf8mb4_unicode_ci', nullable: false })
 	name: string
 
-	@Column()
-	@ApiProperty()
+	@Column({ type: 'blob', nullable: true })
+	finger1: Buffer
+
+	@Column({ type: 'blob', nullable: true })
+	finger2: Buffer
+
+	@Column({ length: 191, collation: 'utf8mb4_unicode_ci', nullable: true })
+	image: string
+
+	@Column({ length: 191, collation: 'utf8mb4_unicode_ci', nullable: false })
+	pis: string
+
+	@Column({ length: 191, collation: 'utf8mb4_unicode_ci', nullable: true })
 	registration: string
 
 	@ManyToOne(() => Company, (company) => company.employee)
-	@ApiProperty()
+	@JoinColumn({ name: 'companie_id' })
 	company: Company
 
-	@OneToMany(() => Movement, (movement) => movement.employee)
-	movements: Movement[]
-
-	@Column()
-	@ApiProperty()
+	@Column({ nullable: true })
 	contract: number
 
-	@Column({ name: 'phone_uuid', default: null })
-	@ApiProperty()
-	phoneUuid: number
+	@Column({ type: 'datetime', nullable: true })
+	register: Date
 
-	@Column({ name: 'phone_status', default: null })
-	@ApiProperty()
+	@Column({ default: 1 })
+	status: number
+
+	@Column({ default: 0, name: 'ferias' })
+	ferias: number
+
+	@Column({ default: 0, name: 'status_update' })
+	statusUpdate: number
+
+	@Column({
+		type: 'text',
+		collation: 'utf8mb4_unicode_ci',
+		nullable: true,
+		name: 'phone_uuid'
+	})
+	phoneUuid: string
+
+	@Column({ default: 0, name: 'phone_status' })
 	phoneStatus: number
 
-	@Column()
-	@ApiProperty()
-	matriz: number
-
-	@Column()
-	@ApiProperty()
-	token: string
-
-	@CreateDateColumn({
-		type: 'timestamp',
-		name: 'create_at',
-		default: () => 'CURRENT_TIMESTAMP(6)'
-	})
-	@ApiProperty()
-	createAt: Date
-
-	@UpdateDateColumn({
-		type: 'timestamp',
-		name: 'update_at',
-		default: () => 'CURRENT_TIMESTAMP(6)',
-		onUpdate: 'CURRENT_TIMESTAMP(6)'
-	})
-	@ApiProperty()
-	updateAt: Date
-
-	@DeleteDateColumn({
-		type: 'timestamp',
-		name: 'deleted_at'
-	})
-	@ApiProperty()
-	deletedAt: Date
-
-	@BeforeInsert()
-	generateToken() {
-		this.token = uuidv4()
-	}
+	@Column({ default: 1, name: 'phone_marcacao' })
+	phoneMarcacao: number
 }

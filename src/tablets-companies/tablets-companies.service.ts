@@ -12,6 +12,27 @@ export class TabletsCompaniesService {
 		private readonly tabletsCompanyRepository: Repository<TabletsCompany>
 	) {}
 
+	async findTabletsCompanyByUuid(uuid: string) {
+		return this.tabletsCompanyRepository
+			.createQueryBuilder('tc')
+			.select([
+				'tc.id as id',
+				'tc.companyId as companyId',
+				'tc.matriz as matriz',
+				'tc.token as token',
+				'tc.terminal as terminal',
+				'tc.uuid as uuid',
+				'tc.status as status',
+				'tc.dataInstalacao as dataInstalacao'
+			])
+			.leftJoin('companies', 'c', 'c.id = tc.companyId')
+			.leftJoin('region', 'r', 'r.id = c.region_id')
+			.where('tc.uuid = :uuid', { uuid })
+			.andWhere('tc.status = :status', { status: 1 })
+			.addSelect('r.description as region')
+			.getRawOne()
+	}
+
 	async create(
 		createTabletsCompanyDto: CreateTabletsCompanyDto
 	): Promise<TabletsCompany> {
@@ -26,17 +47,17 @@ export class TabletsCompaniesService {
 		return await this.tabletsCompanyRepository.find({
 			select: [
 				'id',
-				'company',
+				'companyId',
 				'matriz',
 				'terminal',
 				'uuid',
 				'status',
 				'dataInstalacao',
 				'token'
-			],
-			relations: {
-				company: true
-			}
+			]
+			// relations: {
+			// 	companyId: true
+			// }
 		})
 	}
 
@@ -44,7 +65,7 @@ export class TabletsCompaniesService {
 		const tabletsCompany = await this.tabletsCompanyRepository.findOneOrFail({
 			select: [
 				'id',
-				'company',
+				'companyId',
 				'matriz',
 				'terminal',
 				'uuid',
@@ -52,10 +73,10 @@ export class TabletsCompaniesService {
 				'dataInstalacao',
 				'token'
 			],
-			where: { id },
-			relations: {
-				company: true
-			}
+			where: { id }
+			// relations: {
+			// 	companyId: true
+			// }
 		})
 
 		if (!id) {
@@ -68,7 +89,7 @@ export class TabletsCompaniesService {
 		const tabletsCompany = await this.tabletsCompanyRepository.findOneOrFail({
 			select: [
 				'id',
-				'company',
+				'companyId',
 				'matriz',
 				'terminal',
 				'uuid',
@@ -76,10 +97,10 @@ export class TabletsCompaniesService {
 				'dataInstalacao',
 				'token'
 			],
-			where: { token },
-			relations: {
-				company: true
-			}
+			where: { token }
+			// relations: {
+			// 	companyId: true
+			// }
 		})
 
 		if (!token) {

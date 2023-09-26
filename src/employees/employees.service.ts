@@ -30,12 +30,9 @@ export class EmployeesService {
 				'contract',
 				'phoneUuid',
 				'phoneStatus',
-				'matriz',
-				// 'movements'
-				'token'
+				'status'
 			],
 			relations: {
-				// movements: true,
 				company: true
 			}
 		})
@@ -53,8 +50,7 @@ export class EmployeesService {
 				'contract',
 				'phoneUuid',
 				'phoneStatus',
-				'matriz',
-				'token'
+				'status'
 			],
 			where: { id },
 			relations: {
@@ -80,8 +76,7 @@ export class EmployeesService {
 				'contract',
 				'phoneUuid',
 				'phoneStatus',
-				'matriz',
-				'token'
+				'status'
 			],
 			where: { registration },
 			relations: {

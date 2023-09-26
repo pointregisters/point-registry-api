@@ -9,18 +9,20 @@ import { DatabaseModule } from './database/database.module'
 import { ConfigModule } from '@nestjs/config'
 import { AuthModule } from './auth/auth.module'
 import { AwsS3Module } from './aws-s3/aws-s3.module'
+import { RegionModule } from './region/region.module'
+import { DepartmentModule } from './department/department.module'
 import * as Joi from '@hapi/joi'
 
 @Module({
 	imports: [
 		ConfigModule.forRoot({
 			validationSchema: Joi.object({
-				POSTGRES_HOST: Joi.string().required(),
-				POSTGRES_PORT: Joi.number().required(),
-				POSTGRES_USER: Joi.string().required(),
-				POSTGRES_PASSWORD: Joi.string().required(),
-				POSTGRES_DB: Joi.string().required(),
-				PORT: Joi.number()
+				PORT: Joi.number(),
+				DB_HOST: Joi.string().required(),
+				DB_PORT: Joi.number().required(),
+				DB_USER: Joi.string().required(),
+				DB_PASSWORD: Joi.string().required(),
+				DB_DATABASE: Joi.string().required()
 			})
 		}),
 		EmployeesModule,
@@ -29,7 +31,9 @@ import * as Joi from '@hapi/joi'
 		MovementsModule,
 		DatabaseModule,
 		AuthModule,
-		AwsS3Module
+		AwsS3Module,
+		RegionModule,
+		DepartmentModule
 	],
 	controllers: [AppController],
 	providers: [AppService]

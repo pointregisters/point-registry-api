@@ -13,7 +13,13 @@ export enum MovementType {
 export class CreateMovementDto {
 	@ApiProperty()
 	@IsNotEmpty()
-	employee: Employee
+	employeePis: string
+
+	@ApiProperty()
+	@IsNotEmpty()
+	date: Date
+
+	register: Date
 
 	@ApiProperty()
 	@IsOptional()
@@ -25,14 +31,6 @@ export class CreateMovementDto {
 
 	@ApiProperty()
 	@IsOptional()
-	registration: string
-
-	@ApiProperty()
-	@IsOptional()
-	date: Date
-
-	@ApiProperty()
-	@IsOptional()
 	latitude: string
 
 	@ApiProperty()
@@ -41,9 +39,17 @@ export class CreateMovementDto {
 
 	@ApiProperty()
 	@IsNotEmpty()
-	type: MovementType
+	type: number
+
+	@ApiProperty()
+	@IsNotEmpty()
+	companieRegister: number
 
 	@ApiProperty()
 	@IsOptional()
 	nsr: string
+
+	@ApiProperty()
+	@IsOptional()
+	relogioId: number
 }

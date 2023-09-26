@@ -56,4 +56,12 @@ export class TabletsCompaniesController {
 	async remove(@Param('id') id: string): Promise<void> {
 		return await this.tabletsCompaniesService.remove(+id)
 	}
+
+	@Get('verify-tablet/:uuid')
+	async verifyTablet(@Param('uuid') uuid: string) {
+		const result = await this.tabletsCompaniesService.findTabletsCompanyByUuid(
+			uuid
+		)
+		return result
+	}
 }
