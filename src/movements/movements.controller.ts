@@ -18,11 +18,35 @@ import { UpdateMovementDto } from './dto/update-movement.dto'
 import { Movement } from './entities/movement.entity'
 import { ApiBody, ApiTags } from '@nestjs/swagger'
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express'
+import moment from 'moment-timezone'
 
 @Controller('movements')
 @ApiTags('Movements')
 export class MovementsController {
 	constructor(private readonly movementsService: MovementsService) {}
+
+	@Post('/track-qr-code-photo')
+	@UseInterceptors(FileInterceptor('image'))
+	async trackQRCodePhoto(
+		@UploadedFile() image: Express.Multer.File,
+		@Body() createMovementDto: CreateMovementDto
+	) {
+		try {
+			const createdMovement = await this.movementsService.createMovement(
+				createMovementDto,
+				image
+			)
+
+			return {
+				data: 'Ponto registrado',
+				date: moment().tz(`${createMovementDto.region}`).format('DD/MM/YYYY'),
+				hour: moment().tz(`${createMovementDto.region}`).format('HH:mm')
+			}
+		} catch (error) {
+			console.error(error)
+			throw new Error('Erro ao registrar ponto.')
+		}
+	}
 
 	@Post()
 	@ApiBody({ type: CreateMovementDto })

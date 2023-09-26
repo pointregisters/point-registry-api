@@ -16,9 +16,11 @@ export class CreateMovementDto {
 	employeePis: string
 
 	@ApiProperty()
-	@IsNotEmpty()
+	@IsOptional()
 	date: Date
 
+	@ApiProperty()
+	@IsOptional()
 	register: Date
 
 	@ApiProperty()
@@ -38,11 +40,11 @@ export class CreateMovementDto {
 	longitude: string
 
 	@ApiProperty()
-	@IsNotEmpty()
+	@IsOptional()
 	type: number
 
 	@ApiProperty()
-	@IsNotEmpty()
+	@IsOptional()
 	companieRegister: number
 
 	@ApiProperty()
@@ -50,6 +52,6 @@ export class CreateMovementDto {
 	nsr: string
 
 	@ApiProperty()
-	@IsOptional()
-	relogioId: number
+	@IsNotEmpty()
+	region: string
 }

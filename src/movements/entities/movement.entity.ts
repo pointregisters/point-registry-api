@@ -13,7 +13,7 @@ export enum MovementType {
 	'Relogio' = 'relogio'
 }
 
-@Entity()
+@Entity('movements')
 export class Movement {
 	@PrimaryColumn({ length: 150, collation: 'utf8mb4_unicode_ci' })
 	uuid: string

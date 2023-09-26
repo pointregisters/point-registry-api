@@ -6,6 +6,8 @@ import { Movement } from './entities/movement.entity'
 import { Repository } from 'typeorm'
 import { AwsS3Service } from 'src/aws-s3/aws-s3.service'
 import { EmployeesService } from 'src/employees/employees.service'
+import moment from 'moment-timezone'
+import * as fs from 'fs'
 
 @Injectable()
 export class MovementsService {
@@ -15,6 +17,41 @@ export class MovementsService {
 		private awsS3Service: AwsS3Service,
 		private employeeService: EmployeesService
 	) {}
+
+	async createMovement(
+		createMovementDto: CreateMovementDto,
+		file: Express.Multer.File
+	): Promise<Movement> {
+		const movement = new Movement()
+
+		const path = `assets/photos_taken/${
+			createMovementDto.employeePis
+		}-${moment()
+			.tz(`${createMovementDto.region}`)
+			.format('YYYY-MM-DD HH:mm')
+			.replace(':', '')
+			.replace(' ', '')}.png`
+
+		fs.writeFileSync(path, file.buffer)
+
+		try {
+			movement.employeePis = createMovementDto.employeePis
+			movement.date = createMovementDto.date
+			movement.register = createMovementDto.register
+			movement.image = createMovementDto.image
+			movement.company = createMovementDto.company
+			movement.latitude = createMovementDto.latitude
+			movement.longitude = createMovementDto.longitude
+			movement.type = 4
+			movement.companieRegister = createMovementDto.companieRegister
+			movement.image = path
+
+			const createdMovement = await this.movementRepository.save(movement)
+			return createdMovement
+		} catch (error) {
+			throw error
+		}
+	}
 
 	async create(
 		createMovementDto: CreateMovementDto,
