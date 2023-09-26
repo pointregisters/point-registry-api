@@ -13,28 +13,6 @@ export class EmployeesService {
 	) {}
 
 	async verify(phoneUuid: string): Promise<any> {
-		const query = `
-      SELECT
-        colab.ponto_celular,
-        colab.name,
-        region.description,
-        colab.ponto_qrcode,
-        colab.id AS colaborador_id,
-        colab.pis AS pis,
-        colab.companie_id,
-        colab.contract
-      FROM employees AS colab
-      INNER JOIN companies AS comp ON comp.id = colab.contract
-      LEFT JOIN region ON region.id = comp.region_id
-      WHERE colab.phone_uuid = ${phoneUuid}
-        AND (
-          colab.ponto_qrcode = 1
-          OR colab.ponto_celular = 1
-          OR colab.ponto_biometria = 1
-          OR colab.ponto_matricula = 1
-        )
-        AND colab.phone_status = 1
-        AND colab.status = 1`
 		try {
 			const queryBuilder: SelectQueryBuilder<Employee> = this.employeeRepository
 				.createQueryBuilder('colab')
@@ -81,6 +59,59 @@ export class EmployeesService {
 			return { ready: false }
 		} catch (error) {
 			throw new Error('Failed to execute the query: ' + error.message)
+		}
+	}
+
+	async validate(cpfOrPis: string, phoneUuid: string) {
+		const queryBuilder: SelectQueryBuilder<Employee> = this.employeeRepository
+			.createQueryBuilder('colab')
+			.select([
+				'colab.ponto_celular',
+				'colab.name',
+				'region.description',
+				'colab.ponto_qrcode',
+				'colab.id AS colaborador_id',
+				'colab.pis AS pis',
+				'colab.company',
+				'colab.contract'
+			])
+			.innerJoin('companies', 'comp', 'comp.id = colab.contract')
+			.leftJoin('region', 'region', 'region.id = comp.region_id')
+			.where('(colab.cpf = :cpfOrPis OR colab.pis = :cpfOrPis)', { cpfOrPis })
+			.andWhere(
+				'(colab.ponto_qrcode = 1 OR colab.ponto_celular = 1 OR colab.ponto_biometria = 1 OR colab.ponto_matricula = 1)'
+			)
+			.andWhere('colab.phone_status = 0')
+			.andWhere('colab.status = 1')
+
+		const employee = await queryBuilder.getOne()
+
+		if (employee) {
+			employee.phoneUuid = phoneUuid
+			employee.phoneStatus = 1
+			await this.employeeRepository.save(employee)
+
+			let type = null
+			if (employee.pontoCelular === 1 && employee.pontoQrcode === 0) {
+				type = 0
+			} else if (employee.pontoCelular === 0 && employee.pontoQrcode === 1) {
+				type = 1
+			} else if (employee.pontoCelular === 1 && employee.pontoQrcode === 1) {
+				type = 3
+			}
+
+			return { ready: true, data: employee, type }
+		} else {
+			const employeeWithPhoneStatus = await queryBuilder
+				.clone()
+				.andWhere('colab.phone_status = 1')
+				.getOne()
+
+			if (employeeWithPhoneStatus) {
+				return { ready: false, status: 'EXISTS' }
+			} else {
+				return { ready: false, status: 'NOT_FOUND' }
+			}
 		}
 	}
 

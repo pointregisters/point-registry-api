@@ -25,6 +25,11 @@ export class EmployeesController {
 		return this.employeesService.verify(phoneUuid)
 	}
 
+	@Post('/validate')
+	async validate(@Body() body: { cpfOrPis: string; phoneUuid: string }) {
+		return this.employeesService.validate(body.cpfOrPis, body.phoneUuid)
+	}
+
 	@Post()
 	@ApiBody({ type: CreateEmployeeDto })
 	async create(
