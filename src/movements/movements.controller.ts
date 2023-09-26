@@ -32,7 +32,7 @@ export class MovementsController {
 		@Body() createMovementDto: CreateMovementDto
 	) {
 		try {
-			const createdMovement = await this.movementsService.createMovement(
+			const createdMovement = await this.movementsService.createMovementQrCode(
 				createMovementDto,
 				image
 			)
@@ -42,6 +42,24 @@ export class MovementsController {
 				date: moment().tz(`${createMovementDto.region}`).format('DD/MM/YYYY'),
 				hour: moment().tz(`${createMovementDto.region}`).format('HH:mm')
 			}
+		} catch (error) {
+			console.error(error)
+			throw new Error('Erro ao registrar ponto.')
+		}
+	}
+
+	@Post('/track-photo')
+	@UseInterceptors(FileInterceptor('image'))
+	async trackPhoto(
+		@UploadedFile() image: Express.Multer.File,
+		@Body() createMovementDto: CreateMovementDto
+	) {
+		try {
+			const result = await this.movementsService.createMovementPhoto(
+				createMovementDto,
+				image
+			)
+			return result
 		} catch (error) {
 			console.error(error)
 			throw new Error('Erro ao registrar ponto.')

@@ -8,6 +8,7 @@ import { AwsS3Service } from 'src/aws-s3/aws-s3.service'
 import { EmployeesService } from 'src/employees/employees.service'
 import moment from 'moment-timezone'
 import * as fs from 'fs'
+import { v4 as uuidv4 } from 'uuid'
 
 @Injectable()
 export class MovementsService {
@@ -18,7 +19,7 @@ export class MovementsService {
 		private employeeService: EmployeesService
 	) {}
 
-	async createMovement(
+	async createMovementQrCode(
 		createMovementDto: CreateMovementDto,
 		file: Express.Multer.File
 	): Promise<Movement> {
@@ -36,8 +37,12 @@ export class MovementsService {
 
 		try {
 			movement.employeePis = createMovementDto.employeePis
-			movement.date = createMovementDto.date
-			movement.register = createMovementDto.register
+			movement.date = new Date(
+				moment().tz(createMovementDto.region).format('YYYY-MM-DD')
+			)
+			movement.register = new Date(
+				moment().tz(createMovementDto.region).format('YYYY-MM-DD HH:mm:ss')
+			)
 			movement.image = createMovementDto.image
 			movement.company = createMovementDto.company
 			movement.latitude = createMovementDto.latitude
@@ -48,6 +53,71 @@ export class MovementsService {
 
 			const createdMovement = await this.movementRepository.save(movement)
 			return createdMovement
+		} catch (error) {
+			throw error
+		}
+	}
+
+	async createMovementPhoto(
+		createMovementDto: CreateMovementDto,
+		image: Express.Multer.File
+	): Promise<any> {
+		const {
+			employeePis,
+			latitude,
+			longitude,
+			company,
+			companieRegister,
+			region
+		} = createMovementDto
+
+		try {
+			const now = moment().tz(region).format('YYYY-MM-DD HH:mm:ss')
+
+			const lastMovement = await this.movementRepository
+				.createQueryBuilder('movement')
+				.where('movement.employeePis = :pis', { employeePis })
+				.andWhere('TIMESTAMPDIFF(MINUTE, movement.register, :now) < 2', { now })
+				.orderBy('movement.register', 'DESC')
+				.limit(1)
+				.getOne()
+
+			if (!lastMovement) {
+				const path = `assets/photos_taken/${employeePis}-${moment()
+					.tz(region)
+					.format('YYYY-MM-DD HH:mm')
+					.replace(/[:\s]/g, '')}.png`
+
+				fs.writeFileSync(path, image.buffer, 'base64')
+
+				const movement = new Movement()
+				movement.uuid = uuidv4()
+				movement.employeePis = employeePis
+				movement.date = new Date(moment().tz(region).format('YYYY-MM-DD'))
+				movement.register = new Date(
+					moment().tz(region).format('YYYY-MM-DD HH:mm:ss')
+				)
+				movement.image = path
+				movement.company = company
+				movement.latitude = latitude
+				movement.longitude = longitude
+				movement.type = 3
+				movement.companieRegister = companieRegister
+
+				const createdMovement = await this.movementRepository.save(movement)
+
+				return {
+					data: 'Ponto Registrado',
+					date: moment(createdMovement.register).format('DD/MM/YYYY'),
+					hour: moment(createdMovement.register).format('HH:mm')
+				}
+			} else {
+				return {
+					data: 'Aguarde 2 minutos \n\n Último ponto registrado:',
+					date: moment(lastMovement[0].register).format('DD/MM/YYYY'),
+					hour: moment(lastMovement[0].register).format('HH:mm')
+				}
+			}
 		} catch (error) {
 			throw error
 		}
