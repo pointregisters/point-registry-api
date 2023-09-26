@@ -4,6 +4,7 @@ import { UpdateTabletsCompanyDto } from './dto/update-tablets-company.dto'
 import { TabletsCompany } from './entities/tablets-company.entity'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
+import moment from 'moment-timezone'
 
 @Injectable()
 export class TabletsCompaniesService {
@@ -31,6 +32,38 @@ export class TabletsCompaniesService {
 			.andWhere('tc.status = :status', { status: 1 })
 			.addSelect('r.description as region')
 			.getRawOne()
+	}
+
+	async validateTablet(uuid: string, token: string): Promise<any> {
+		try {
+			const result = await this.tabletsCompanyRepository
+				.createQueryBuilder()
+				.select(['tc', 'r.description AS region'])
+				.from(TabletsCompany, 'tc')
+				.innerJoin('tc.company', 'c')
+				.leftJoin('c.region', 'r')
+				.where('tc.token = :token', { token })
+				.andWhere('tc.status = 0')
+				.getRawMany()
+
+			if (result.length > 0) {
+				const tablet = result[0]
+				tablet.uuid = uuid
+				tablet.status = 1
+				tablet.data_instalacao = moment()
+					.tz(tablet.region)
+					.format('YYYY-MM-DD HH:mm:ss')
+
+				// Save the updated tablet
+				await this.tabletsCompanyRepository.save(tablet)
+
+				return { ready: true, data: tablet }
+			} else {
+				return { ready: false }
+			}
+		} catch (error) {
+			throw new Error('Failed to execute the query: ' + error.message)
+		}
 	}
 
 	async create(

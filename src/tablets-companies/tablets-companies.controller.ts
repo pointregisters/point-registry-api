@@ -64,4 +64,10 @@ export class TabletsCompaniesController {
 		)
 		return result
 	}
+
+	@Post('/validateTablet')
+	async validateTablet(@Body() body: { uuid: string; token: string }) {
+		const { uuid, token } = body
+		return this.tabletsCompaniesService.validateTablet(uuid, token)
+	}
 }
