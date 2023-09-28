@@ -5,12 +5,15 @@ import { TabletsCompany } from './entities/tablets-company.entity'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import moment from 'moment-timezone'
+import { Movement } from 'src/movements/entities/movement.entity'
 
 @Injectable()
 export class TabletsCompaniesService {
 	constructor(
 		@InjectRepository(TabletsCompany)
-		private readonly tabletsCompanyRepository: Repository<TabletsCompany>
+		private readonly tabletsCompanyRepository: Repository<TabletsCompany>,
+		@InjectRepository(Movement)
+		private readonly movementRepository: Repository<Movement>
 	) {}
 
 	async findTabletsCompanyByUuid(uuid: string) {
@@ -63,6 +66,49 @@ export class TabletsCompaniesService {
 			}
 		} catch (error) {
 			throw new Error('Failed to execute the query: ' + error.message)
+		}
+	}
+
+	async validateID(id: string, token: string, region: string): Promise<any> {
+		try {
+			const tabletCompany = await this.tabletsCompanyRepository
+				.createQueryBuilder('tc')
+				.select(['tc.companie_id', 'tc.matriz'])
+				.addSelect(['emp.*'])
+				.innerJoin('employees', 'emp', 'emp.matriz = tc.matriz')
+				.where('tc.token = :token', { token })
+				.andWhere('emp.registration = :id', { id })
+				.andWhere('emp.status = 1')
+				.andWhere('emp.ponto_matricula = 1')
+				.getOne()
+
+			if (tabletCompany) {
+				const lastMovement = await this.movementRepository
+					.createQueryBuilder('movement')
+					// .where('movement.employee_pis = :pis', { pis: tabletCompany.pis })
+					.andWhere('TIMESTAMPDIFF(MINUTE, movement.register, :now) < 2', {
+						now: moment().tz(region).format('YYYY-MM-DD HH:mm:ss')
+					})
+					.orderBy('movement.register', 'DESC')
+					.limit(1)
+					.getOne()
+
+				if (!lastMovement) {
+					return { status: 'success', employee: tabletCompany }
+				} else {
+					return {
+						status: 'hold',
+						uuid: tabletCompany.uuid,
+						data: 'Aguarde 2 minutos \n\n Último ponto registrado:',
+						date: moment(lastMovement.register).format('DD/MM/YYYY'),
+						hour: moment(lastMovement.register).format('HH:mm')
+					}
+				}
+			} else {
+				return { status: 'error' }
+			}
+		} catch (error) {
+			throw error
 		}
 	}
 

@@ -70,4 +70,22 @@ export class TabletsCompaniesController {
 		const { uuid, token } = body
 		return this.tabletsCompaniesService.validateTablet(uuid, token)
 	}
+
+	@Post('/validateID')
+	async validateID(
+		@Body() body: { id: string; token: string; region: string }
+	) {
+		const { id, token, region } = body
+		try {
+			const result = await this.tabletsCompaniesService.validateID(
+				id,
+				token,
+				region
+			)
+			return result
+		} catch (error) {
+			console.error(error)
+			throw new Error('Erro ao validar ID.')
+		}
+	}
 }
