@@ -123,6 +123,68 @@ export class MovementsService {
 		}
 	}
 
+	async createMovementPhotoTablet(
+		createMovementDto: CreateMovementDto,
+		image: Express.Multer.File
+	): Promise<any> {
+		const { employeePis, company, companieRegister, region } = createMovementDto
+
+		try {
+			const path = `assets/photos_taken/${employeePis}-${moment()
+				.tz(region)
+				.format('YYYY-MM-DD HH:mm')
+				.replace(':', '')
+				.replace(' ', '')}.png`
+
+			fs.writeFileSync(path, image.buffer, 'base64')
+
+			const movement = {
+				uuid: uuidv4(),
+				employee_pis: employeePis,
+				date: moment().tz(region).format('YYYY-MM-DD'),
+				register: moment().tz(region).format('YYYY-MM-DD HH:mm:ss'),
+				image: path,
+				companie_id: company,
+				type: 2,
+				companie_register: companieRegister
+			}
+
+			await this.movementRepository.save(movement)
+
+			return {
+				data: 'Ponto Registrado',
+				date: moment().tz(region).format('DD/MM/YYYY'),
+				hour: moment().tz(region).format('HH:mm')
+			}
+		} catch (error) {
+			throw error
+		}
+	}
+
+	async getTracks(
+		pis: string,
+		initialDate: string,
+		endDate: string
+	): Promise<any[]> {
+		try {
+			const tracks = await this.movementRepository
+				.createQueryBuilder('mov')
+				.select(['mov.uuid', 'mov.register as dateFormatted', 'emp.name'])
+				.innerJoin('mov.employee', 'employees')
+				.where('mov.date BETWEEN :initialDate AND :endDate', {
+					initialDate: moment(initialDate).format('YYYY-MM-DD'),
+					endDate: moment(endDate).format('YYYY-MM-DD')
+				})
+				.andWhere('mov.employee_pis = :pis', { pis })
+				.orderBy('mov.register', 'DESC')
+				.getMany()
+
+			return tracks
+		} catch (error) {
+			throw error
+		}
+	}
+
 	async create(
 		createMovementDto: CreateMovementDto,
 		file: Express.Multer.File

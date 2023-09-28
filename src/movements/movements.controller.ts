@@ -10,7 +10,8 @@ import {
 	HttpStatus,
 	UseInterceptors,
 	UploadedFile,
-	UploadedFiles
+	UploadedFiles,
+	Query
 } from '@nestjs/common'
 import { MovementsService } from './movements.service'
 import { CreateMovementDto } from './dto/create-movement.dto'
@@ -63,6 +64,43 @@ export class MovementsController {
 		} catch (error) {
 			console.error(error)
 			throw new Error('Erro ao registrar ponto.')
+		}
+	}
+
+	@Post('/track-photo-tablet')
+	@UseInterceptors(FileInterceptor('image'))
+	async trackPhotoTablet(
+		@UploadedFile() image: Express.Multer.File,
+		@Body() createMovementDto: CreateMovementDto
+	) {
+		try {
+			const result = await this.movementsService.createMovementPhotoTablet(
+				createMovementDto,
+				image
+			)
+			return result
+		} catch (error) {
+			console.error(error)
+			throw new Error('Erro ao registrar ponto pelo tablet.')
+		}
+	}
+
+	@Get('tracks/:pis')
+	async getTracks(
+		@Param('pis') pis: string,
+		@Query('initialDate') initialDate: string,
+		@Query('endDate') endDate: string
+	): Promise<any[]> {
+		try {
+			const result = await this.movementsService.getTracks(
+				pis,
+				initialDate,
+				endDate
+			)
+			return result
+		} catch (error) {
+			console.error(error)
+			throw new Error('Erro ao buscar os registros de ponto.')
 		}
 	}
 
