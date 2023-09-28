@@ -11,6 +11,9 @@ import { AuthModule } from './auth/auth.module'
 import { AwsS3Module } from './aws-s3/aws-s3.module'
 import { RegionModule } from './region/region.module'
 import { DepartmentModule } from './department/department.module'
+import { RegisterQrcodeModule } from './register_qrcode/register_qrcode.module'
+import { CommunicationsModule } from './communications/communications.module'
+import { CommunicationsNotificationsModule } from './communications_notifications/communications_notifications.module'
 import * as Joi from '@hapi/joi'
 
 @Module({
@@ -33,7 +36,10 @@ import * as Joi from '@hapi/joi'
 		AuthModule,
 		AwsS3Module,
 		RegionModule,
-		DepartmentModule
+		DepartmentModule,
+		RegisterQrcodeModule,
+		CommunicationsModule,
+		CommunicationsNotificationsModule
 	],
 	controllers: [AppController],
 	providers: [AppService]
