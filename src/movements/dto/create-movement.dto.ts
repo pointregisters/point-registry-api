@@ -12,6 +12,10 @@ export enum MovementType {
 }
 export class CreateMovementDto {
 	@ApiProperty()
+	@IsOptional()
+	uuid: string
+
+	@ApiProperty()
 	@IsNotEmpty()
 	employeePis: string
 
@@ -40,7 +44,7 @@ export class CreateMovementDto {
 	longitude: string
 
 	@ApiProperty()
-	@IsOptional()
+	@IsNotEmpty()
 	type: number
 
 	@ApiProperty()

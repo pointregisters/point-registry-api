@@ -18,7 +18,12 @@ export class Movement {
 	@PrimaryColumn({ length: 150, collation: 'utf8mb4_unicode_ci' })
 	uuid: string
 
-	@Column({ length: 20, collation: 'utf8mb4_unicode_ci', nullable: true })
+	@Column({
+		name: 'employee_pis',
+		length: 20,
+		collation: 'utf8mb4_unicode_ci',
+		nullable: true
+	})
 	employeePis: string
 
 	@Column({ type: 'date' })

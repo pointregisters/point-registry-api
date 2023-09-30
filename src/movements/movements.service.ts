@@ -5,8 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { Movement } from './entities/movement.entity'
 import { Repository } from 'typeorm'
 import { AwsS3Service } from 'src/aws-s3/aws-s3.service'
-import { EmployeesService } from 'src/employees/employees.service'
-import moment from 'moment-timezone'
+import * as moment from 'moment-timezone'
 import * as fs from 'fs'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -15,146 +14,50 @@ export class MovementsService {
 	constructor(
 		@InjectRepository(Movement)
 		private readonly movementRepository: Repository<Movement>,
-		private awsS3Service: AwsS3Service,
-		private employeeService: EmployeesService
+		private awsS3Service: AwsS3Service
 	) {}
-
-	async createMovementQrCode(
-		createMovementDto: CreateMovementDto,
-		file: Express.Multer.File
-	): Promise<Movement> {
-		const movement = new Movement()
-
-		const path = `assets/photos_taken/${
-			createMovementDto.employeePis
-		}-${moment()
-			.tz(`${createMovementDto.region}`)
-			.format('YYYY-MM-DD HH:mm')
-			.replace(':', '')
-			.replace(' ', '')}.png`
-
-		fs.writeFileSync(path, file.buffer)
-
-		try {
-			movement.employeePis = createMovementDto.employeePis
-			movement.date = new Date(
-				moment().tz(createMovementDto.region).format('YYYY-MM-DD')
-			)
-			movement.register = new Date(
-				moment().tz(createMovementDto.region).format('YYYY-MM-DD HH:mm:ss')
-			)
-			movement.image = createMovementDto.image
-			movement.company = createMovementDto.company
-			movement.latitude = createMovementDto.latitude
-			movement.longitude = createMovementDto.longitude
-			movement.type = 4
-			movement.companieRegister = createMovementDto.companieRegister
-			movement.image = path
-
-			const createdMovement = await this.movementRepository.save(movement)
-			return createdMovement
-		} catch (error) {
-			throw error
-		}
-	}
-
-	async createMovementPhoto(
-		createMovementDto: CreateMovementDto,
-		image: Express.Multer.File
-	): Promise<any> {
-		const {
-			employeePis,
-			latitude,
-			longitude,
-			company,
-			companieRegister,
-			region
-		} = createMovementDto
-
-		try {
-			const now = moment().tz(region).format('YYYY-MM-DD HH:mm:ss')
-
-			const lastMovement = await this.movementRepository
-				.createQueryBuilder('movement')
-				.where('movement.employeePis = :pis', { employeePis })
-				.andWhere('TIMESTAMPDIFF(MINUTE, movement.register, :now) < 2', { now })
-				.orderBy('movement.register', 'DESC')
-				.limit(1)
-				.getOne()
-
-			if (!lastMovement) {
-				const path = `assets/photos_taken/${employeePis}-${moment()
-					.tz(region)
-					.format('YYYY-MM-DD HH:mm')
-					.replace(/[:\s]/g, '')}.png`
-
-				fs.writeFileSync(path, image.buffer, 'base64')
-
-				const movement = new Movement()
-				movement.uuid = uuidv4()
-				movement.employeePis = employeePis
-				movement.date = new Date(moment().tz(region).format('YYYY-MM-DD'))
-				movement.register = new Date(
-					moment().tz(region).format('YYYY-MM-DD HH:mm:ss')
-				)
-				movement.image = path
-				movement.company = company
-				movement.latitude = latitude
-				movement.longitude = longitude
-				movement.type = 3
-				movement.companieRegister = companieRegister
-
-				const createdMovement = await this.movementRepository.save(movement)
-
-				return {
-					data: 'Ponto Registrado',
-					date: moment(createdMovement.register).format('DD/MM/YYYY'),
-					hour: moment(createdMovement.register).format('HH:mm')
-				}
-			} else {
-				return {
-					data: 'Aguarde 2 minutos \n\n Último ponto registrado:',
-					date: moment(lastMovement[0].register).format('DD/MM/YYYY'),
-					hour: moment(lastMovement[0].register).format('HH:mm')
-				}
-			}
-		} catch (error) {
-			throw error
-		}
-	}
 
 	async createMovementPhotoTablet(
 		createMovementDto: CreateMovementDto,
 		image: Express.Multer.File
 	): Promise<any> {
-		const { employeePis, company, companieRegister, region } = createMovementDto
-
 		try {
-			const path = `assets/photos_taken/${employeePis}-${moment()
-				.tz(region)
-				.format('YYYY-MM-DD HH:mm')
-				.replace(':', '')
-				.replace(' ', '')}.png`
+			const pis = createMovementDto.employeePis
+			const now = moment()
+				.tz(createMovementDto.region)
+				.format('YYYY-MM-DD HH:mm:ss')
 
-			fs.writeFileSync(path, image.buffer, 'base64')
+			const lastMovement = await this.verifyLastMovement(pis, now)
 
-			const movement = {
-				uuid: uuidv4(),
-				employee_pis: employeePis,
-				date: moment().tz(region).format('YYYY-MM-DD'),
-				register: moment().tz(region).format('YYYY-MM-DD HH:mm:ss'),
-				image: path,
-				companie_id: company,
-				type: 2,
-				companie_register: companieRegister
-			}
+			if (!lastMovement) {
+				this.checkDirectory()
 
-			await this.movementRepository.save(movement)
+				const path = this.saveImageDirectory(createMovementDto, image)
 
-			return {
-				data: 'Ponto Registrado',
-				date: moment().tz(region).format('DD/MM/YYYY'),
-				hour: moment().tz(region).format('HH:mm')
+				createMovementDto.date = new Date(
+					moment().tz(createMovementDto.region).format('YYYY-MM-DD')
+				)
+				createMovementDto.register = new Date(
+					moment().tz(createMovementDto.region).format('YYYY-MM-DD HH:mm:ss')
+				)
+				createMovementDto.image = path
+				createMovementDto.type = 2
+				createMovementDto.uuid = uuidv4()
+
+				const movement = this.movementRepository.create(createMovementDto)
+				await this.movementRepository.save(movement)
+
+				return {
+					data: 'Ponto Registrado',
+					date: moment(movement.register).format('DD/MM/YYYY'),
+					hour: moment(movement.register).format('HH:mm')
+				}
+			} else {
+				return {
+					data: 'Aguarde 2 minutos | Último ponto registrado:',
+					date: moment(lastMovement.register).format('DD/MM/YYYY'),
+					hour: moment(lastMovement.register).format('HH:mm')
+				}
 			}
 		} catch (error) {
 			throw error
@@ -169,8 +72,19 @@ export class MovementsService {
 		try {
 			const tracks = await this.movementRepository
 				.createQueryBuilder('mov')
-				.select(['mov.uuid', 'mov.register as dateFormatted', 'emp.name'])
-				.innerJoin('mov.employee', 'employees')
+				.select([
+					'mov.uuid',
+					'mov.uuid',
+					'mov.image',
+					'mov.date',
+					'mov.register',
+					'mov.company',
+					'mov.employeePis',
+					'mov.latitude',
+					'mov.longitude',
+					'mov.type'
+				])
+				.leftJoin('employees', 'emp', 'emp.id = mov.employee_pis')
 				.where('mov.date BETWEEN :initialDate AND :endDate', {
 					initialDate: moment(initialDate).format('YYYY-MM-DD'),
 					endDate: moment(endDate).format('YYYY-MM-DD')
@@ -262,7 +176,7 @@ export class MovementsService {
 		return movement
 	}
 
-	async findForRegistration(registration: string): Promise<Movement[]> {
+	async findForRegistration(employeePis: string): Promise<Movement[]> {
 		const movements = await this.movementRepository.find({
 			select: [
 				'uuid',
@@ -276,11 +190,9 @@ export class MovementsService {
 				'type',
 				'nsr'
 			],
-			// where: {
-			// 	employee: {
-			// 		registration: registration
-			// 	}
-			// },
+			where: {
+				employeePis
+			},
 			relations: {
 				company: true
 			}
@@ -288,7 +200,7 @@ export class MovementsService {
 
 		if (!movements || movements.length === 0) {
 			throw new NotFoundException(
-				`Não foram encontrados Movements para o registration Nº ${registration}`
+				`Não foram encontrados Movements para o registration Nº ${employeePis}`
 			)
 		}
 		return movements
@@ -311,5 +223,39 @@ export class MovementsService {
 			throw new NotFoundException(`Não achei um Company com o id ${uuid}`)
 		}
 		this.movementRepository.softDelete({ uuid })
+	}
+
+	private async verifyLastMovement(pis: string, now: string) {
+		return await this.movementRepository
+			.createQueryBuilder('movement')
+			.where('movement.employeePis = :pis', { pis })
+			.andWhere('TIMESTAMPDIFF(MINUTE, movement.register, :now) < 2', { now })
+			.orderBy('movement.register', 'DESC')
+			.limit(1)
+			.getOne()
+	}
+	private saveImageDirectory(
+		createMovementDto: CreateMovementDto,
+		image: Express.Multer.File
+	) {
+		const path = `./assets/photos_taken/${
+			createMovementDto.employeePis
+		}-${moment()
+			.tz(createMovementDto.region)
+			.format('YYYY-MM-DD HH:mm')
+			.replace(':', '')
+			.replace(' ', '')}.png`
+
+		fs.writeFileSync(path, image.buffer, 'base64')
+		return path
+	}
+
+	private checkDirectory() {
+		const directory = './assets/photos_taken/'
+
+		if (!fs.existsSync(directory)) {
+			console.log('Diretorio criado ')
+			fs.mkdirSync(directory, { recursive: true })
+		}
 	}
 }
