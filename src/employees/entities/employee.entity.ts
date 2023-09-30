@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { Company } from 'src/companies/entities/company.entity'
 import {
+	BeforeInsert,
 	Column,
 	Entity,
 	JoinColumn,
@@ -8,7 +9,7 @@ import {
 	PrimaryGeneratedColumn
 } from 'typeorm'
 
-import { v4 as uuidv4 } from 'uuid'
+import * as crypto from 'crypto'
 
 @Entity('employees')
 export class Employee {
@@ -191,4 +192,30 @@ export class Employee {
 
 	@Column({ type: 'text', nullable: true, name: 'api_token' })
 	apiToken: string
+
+	@BeforeInsert()
+	generateFields() {
+		this.pis = this.generateRandomField(11)
+		this.registration = this.generateRandomField(6)
+		this.register = new Date()
+		this.token = this.generateRandomToken(64)
+	}
+
+	generateRandomField(length: number) {
+		const fieldLength = length
+		let field = ''
+
+		for (let i = 0; i < fieldLength; i++) {
+			const randomNumber = Math.floor(Math.random() * 10)
+			field += randomNumber.toString()
+		}
+
+		return field
+	}
+
+	generateRandomToken(length: number): string {
+		const buffer = crypto.randomBytes(length / 2)
+		const token = buffer.toString('hex')
+		return token
+	}
 }

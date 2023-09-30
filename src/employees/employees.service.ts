@@ -26,7 +26,7 @@ export class EmployeesService {
 					'colab.company',
 					'colab.contract'
 				])
-				.innerJoin('companies', 'comp', 'comp.id = colab.contract')
+				.leftJoin('companies', 'comp', 'comp.id = colab.contract')
 				.leftJoin('region', 'region', 'region.id = comp.region_id')
 				.where('colab.phone_uuid = :phoneUuid', { phoneUuid })
 				.andWhere(
@@ -75,7 +75,7 @@ export class EmployeesService {
 				'colab.company',
 				'colab.contract'
 			])
-			.innerJoin('companies', 'comp', 'comp.id = colab.contract')
+			.leftJoin('companies', 'comp', 'comp.id = colab.contract')
 			.leftJoin('region', 'region', 'region.id = comp.region_id')
 			.where('(colab.cpf = :cpfOrPis OR colab.pis = :cpfOrPis)', { cpfOrPis })
 			.andWhere(
@@ -142,19 +142,19 @@ export class EmployeesService {
 	}
 
 	async findOne(id: number): Promise<Employee> {
-		const User = await this.employeeRepository.findOneOrFail({
-			select: [
-				'id',
-				'image',
-				'pis',
-				'name',
-				'registration',
-				'company',
-				'contract',
-				'phoneUuid',
-				'phoneStatus',
-				'status'
-			],
+		const User = await this.employeeRepository.findOne({
+			// select: [
+			// 	'id',
+			// 	'image',
+			// 	'pis',
+			// 	'name',
+			// 	'registration',
+			// 	'company',
+			// 	'contract',
+			// 	'phoneUuid',
+			// 	'phoneStatus',
+			// 	'status'
+			// ],
 			where: { id },
 			relations: {
 				company: true
