@@ -7,7 +7,6 @@ import { TabletsCompaniesModule } from './tablets-companies/tablets-companies.mo
 import { MovementsModule } from './movements/movements.module'
 import { DatabaseModule } from './database/database.module'
 import { ConfigModule } from '@nestjs/config'
-import { AuthModule } from './auth/auth.module'
 import { AwsS3Module } from './aws-s3/aws-s3.module'
 import { RegionModule } from './region/region.module'
 import { DepartmentModule } from './department/department.module'
@@ -33,7 +32,6 @@ import * as Joi from '@hapi/joi'
 		TabletsCompaniesModule,
 		MovementsModule,
 		DatabaseModule,
-		AuthModule,
 		AwsS3Module,
 		RegionModule,
 		DepartmentModule,
