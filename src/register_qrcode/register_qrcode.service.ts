@@ -4,7 +4,7 @@ import { UpdateRegisterQrcodeDto } from './dto/update-register_qrcode.dto'
 import { InjectRepository } from '@nestjs/typeorm'
 import { RegisterQrcode } from './entities/register_qrcode.entity'
 import { Repository } from 'typeorm'
-import moment from 'moment-timezone'
+import * as moment from 'moment-timezone'
 
 @Injectable()
 export class RegisterQrcodeService {
@@ -61,12 +61,16 @@ export class RegisterQrcodeService {
 		return 'This action adds a new registerQrcode'
 	}
 
-	findAll() {
-		return `This action returns all registerQrcode`
+	async findAll() {
+		return await this.registerQrcodeRepository.find()
 	}
 
-	findOne(id: number) {
-		return `This action returns a #${id} registerQrcode`
+	async findOne(id: number) {
+		return await this.registerQrcodeRepository.findOne({
+			where: {
+				id
+			}
+		})
 	}
 
 	update(id: number, updateRegisterQrcodeDto: UpdateRegisterQrcodeDto) {

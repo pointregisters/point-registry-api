@@ -17,7 +17,7 @@ import { RateLimit } from 'nestjs-rate-limiter'
 export class RegisterQrcodeController {
 	constructor(private readonly registerQrcodeService: RegisterQrcodeService) {}
 
-	@Get('checkQRCode')
+	@Get('check-qr-code')
 	@RateLimit({
 		keyPrefix: 'checkQRCode',
 		points: 2,
