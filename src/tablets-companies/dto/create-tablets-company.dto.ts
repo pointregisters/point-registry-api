@@ -5,7 +5,7 @@ import { Company } from 'src/companies/entities/company.entity'
 export class CreateTabletsCompanyDto {
 	@ApiProperty()
 	@IsNotEmpty()
-	company: Company
+	companyId: string
 
 	@ApiProperty()
 	@IsNotEmpty()
@@ -16,7 +16,7 @@ export class CreateTabletsCompanyDto {
 	terminal: string
 
 	@ApiProperty()
-	@IsNotEmpty()
+	@IsOptional()
 	status: boolean
 
 	@ApiProperty()
