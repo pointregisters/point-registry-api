@@ -15,7 +15,7 @@ export class CommunicationsNotificationsService {
 	async getNotificationsQuantity(pis: string): Promise<number> {
 		return this.communicationNotificationRepository
 			.createQueryBuilder('cn')
-			.innerJoin('cn.employee', 'emp')
+			.leftJoin('employees', 'emp', 'emp.id = cn.employee_id')
 			.where('emp.pis = :pis', { pis })
 			.andWhere('cn.status = 0')
 			.select('COUNT(DISTINCT cn.id)', 'quantity')
@@ -92,12 +92,16 @@ export class CommunicationsNotificationsService {
 		return 'This action adds a new communicationsNotification'
 	}
 
-	findAll() {
-		return `This action returns all communicationsNotifications`
+	async findAll() {
+		return await this.communicationNotificationRepository.find()
 	}
 
-	findOne(id: number) {
-		return `This action returns a #${id} communicationsNotification`
+	async findOne(id: number) {
+		return await this.communicationNotificationRepository.findOne({
+			where: {
+				id
+			}
+		})
 	}
 
 	update(

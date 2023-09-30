@@ -6,12 +6,6 @@ export class CommunicationNotification {
 	@PrimaryGeneratedColumn()
 	id: number
 
-	@ManyToOne(
-		() => Communication,
-		(communication) => communication.notifications
-	)
-	comunication: Communication
-
 	@Column({ type: 'bigint' })
 	employee_id: number
 
