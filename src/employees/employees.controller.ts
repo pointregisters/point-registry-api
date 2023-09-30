@@ -20,6 +20,16 @@ import { Employee } from './entities/employee.entity'
 export class EmployeesController {
 	constructor(private readonly employeesService: EmployeesService) {}
 
+	@Get('/verify/:phoneUuid')
+	async verify(@Param('phoneUuid') phoneUuid: string) {
+		return this.employeesService.verify(phoneUuid)
+	}
+
+	@Post('/validate')
+	async validate(@Body() body: { cpfOrPis: string; phoneUuid: string }) {
+		return this.employeesService.validate(body.cpfOrPis, body.phoneUuid)
+	}
+
 	@Post()
 	@ApiBody({ type: CreateEmployeeDto })
 	async create(

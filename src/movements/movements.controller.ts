@@ -10,7 +10,8 @@ import {
 	HttpStatus,
 	UseInterceptors,
 	UploadedFile,
-	UploadedFiles
+	UploadedFiles,
+	Query
 } from '@nestjs/common'
 import { MovementsService } from './movements.service'
 import { CreateMovementDto } from './dto/create-movement.dto'
@@ -18,11 +19,49 @@ import { UpdateMovementDto } from './dto/update-movement.dto'
 import { Movement } from './entities/movement.entity'
 import { ApiBody, ApiTags } from '@nestjs/swagger'
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express'
+import * as moment from 'moment-timezone'
 
 @Controller('movements')
 @ApiTags('Movements')
 export class MovementsController {
 	constructor(private readonly movementsService: MovementsService) {}
+
+	@Post('/register-point')
+	@UseInterceptors(FileInterceptor('image'))
+	async trackPhotoTablet(
+		@UploadedFile() image: Express.Multer.File,
+		@Body() createMovementDto: CreateMovementDto
+	) {
+		try {
+			const result = await this.movementsService.createMovementPhotoTablet(
+				createMovementDto,
+				image
+			)
+			return result
+		} catch (error) {
+			console.error(error)
+			throw new Error('Erro ao registrar ponto pelo tablet.')
+		}
+	}
+
+	@Get('employee-pis/period')
+	async getTracks(
+		@Query('pis') pis: string,
+		@Query('initialDate') initialDate: string,
+		@Query('endDate') endDate: string
+	): Promise<any[]> {
+		try {
+			const result = await this.movementsService.getTracks(
+				pis,
+				initialDate,
+				endDate
+			)
+			return result
+		} catch (error) {
+			console.error(error)
+			throw new Error('Erro ao buscar os registros de ponto.')
+		}
+	}
 
 	@Post()
 	@ApiBody({ type: CreateMovementDto })
@@ -66,9 +105,9 @@ export class MovementsController {
 		return await this.movementsService.findAll()
 	}
 
-	@Get('registration/:registration')
+	@Get('employee-pis/:employeePis')
 	async findForRegistration(
-		@Param('registration') registration: string
+		@Param('employeePis') registration: string
 	): Promise<Movement[]> {
 		return await this.movementsService.findForRegistration(registration)
 	}
