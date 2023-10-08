@@ -48,6 +48,14 @@ export class EmployeesController {
 		return await this.employeesService.findOne(+id)
 	}
 
+	@Get(':registration/company/:companyId')
+	async findEmployeeByCompany(
+		@Param('registration') registration: string,
+		@Param('companyId') companyId: string
+	): Promise<Employee> {
+		return await this.employeesService.findRegistration(registration, companyId)
+	}
+
 	@Patch(':id')
 	@ApiBody({ type: UpdateEmployeeDto })
 	async update(
