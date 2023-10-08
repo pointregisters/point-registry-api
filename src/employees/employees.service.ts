@@ -4,6 +4,7 @@ import { UpdateEmployeeDto } from './dto/update-employee.dto'
 import { Employee } from './entities/employee.entity'
 import { Repository, SelectQueryBuilder } from 'typeorm'
 import { InjectRepository } from '@nestjs/typeorm'
+import { Company } from 'src/companies/entities/company.entity'
 
 @Injectable()
 export class EmployeesService {
@@ -167,27 +168,29 @@ export class EmployeesService {
 		return User
 	}
 
-	async findRegistration(registration: string): Promise<Employee> {
-		const User = await this.employeeRepository.findOneOrFail({
-			select: [
-				'id',
-				'image',
-				'pis',
-				'name',
-				'registration',
-				'company',
-				'contract',
-				'phoneUuid',
-				'phoneStatus',
-				'status'
-			],
-			where: { registration },
-			relations: {
-				company: true
-			}
-		})
+	async findRegistration(
+		registration: string,
+		companyId: string
+	): Promise<any> {
+		const User = this.employeeRepository
+			.createQueryBuilder('employee')
+			.select([
+				'employee.id as id',
+				'employee.image as image',
+				'employee.pis as pis',
+				'employee.name as name',
+				'employee.registration as registration',
+				'employee.company as company',
+				'employee.contract as contract',
+				'employee.phoneUuid as phoneUuid',
+				'employee.phoneStatus as phoneStatus',
+				'employee.status as status'
+			])
+			.where('employee.registration = :registration', { registration })
+			.andWhere('employee.company = :companyId', { companyId })
+			.getRawOne()
 
-		if (!registration) {
+		if (!User) {
 			throw new NotFoundException(
 				`Não achei um Employee com o registration ${registration}`
 			)
