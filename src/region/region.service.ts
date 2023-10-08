@@ -22,7 +22,7 @@ export class RegionService {
 	}
 
 	async findOne(id: number) {
-		return await this.repository.find({
+		return await this.repository.findOne({
 			select: ['id', 'description', 'cidade', 'status'],
 			where: { id }
 		})

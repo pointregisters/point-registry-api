@@ -7,7 +7,6 @@ import { Repository } from 'typeorm'
 import { AwsS3Service } from 'src/aws-s3/aws-s3.service'
 import * as moment from 'moment-timezone'
 import * as fs from 'fs'
-import { v4 as uuidv4 } from 'uuid'
 
 @Injectable()
 export class MovementsService {
@@ -34,23 +33,16 @@ export class MovementsService {
 
 				const path = this.saveImageDirectory(createMovementDto, image)
 
-				createMovementDto.date = new Date(
-					moment().tz(createMovementDto.region).format('YYYY-MM-DD')
-				)
-				createMovementDto.register = new Date(
-					moment().tz(createMovementDto.region).format('YYYY-MM-DD HH:mm:ss')
-				)
 				createMovementDto.image = path
-				createMovementDto.type = 2
-				createMovementDto.uuid = uuidv4()
 
 				const movement = this.movementRepository.create(createMovementDto)
-				await this.movementRepository.save(movement)
+				const response = await this.movementRepository.save(movement)
 
 				return {
-					data: 'Ponto Registrado',
-					date: moment(movement.register).format('DD/MM/YYYY'),
-					hour: moment(movement.register).format('HH:mm')
+					msg: 'Ponto Registrado',
+					date: moment().tz(createMovementDto.region).format('DD-MM-YYYY'),
+					hour: moment().tz(createMovementDto.region).format('HH:mm'),
+					response
 				}
 			} else {
 				return {
@@ -192,10 +184,10 @@ export class MovementsService {
 			],
 			where: {
 				employeePis
-			},
-			relations: {
-				company: true
 			}
+			// relations: {
+			// 	company: true
+			// }
 		})
 
 		if (!movements || movements.length === 0) {
@@ -234,6 +226,7 @@ export class MovementsService {
 			.limit(1)
 			.getOne()
 	}
+
 	private saveImageDirectory(
 		createMovementDto: CreateMovementDto,
 		image: Express.Multer.File

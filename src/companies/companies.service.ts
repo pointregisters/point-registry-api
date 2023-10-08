@@ -43,10 +43,9 @@ export class CompaniesService {
 				'cnpj',
 				'type',
 				'matriz',
-				'dateContrato',
+				'status',
 				'email',
-				'login',
-				'senha',
+				'local',
 				'regionId'
 			],
 			where: { id }
