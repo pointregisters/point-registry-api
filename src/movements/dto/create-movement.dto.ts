@@ -21,11 +21,11 @@ export class CreateMovementDto {
 
 	@ApiProperty()
 	@IsOptional()
-	date: Date
+	date: string
 
 	@ApiProperty()
 	@IsOptional()
-	register: Date
+	register: string
 
 	@ApiProperty()
 	@IsOptional()

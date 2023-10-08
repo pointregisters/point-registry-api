@@ -1,7 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { Company } from 'src/companies/entities/company.entity'
 import { Employee } from 'src/employees/entities/employee.entity'
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm'
+import {
+	BeforeInsert,
+	Column,
+	Entity,
+	JoinColumn,
+	ManyToOne,
+	PrimaryColumn
+} from 'typeorm'
 
 import { v4 as uuidv4 } from 'uuid'
 
@@ -56,4 +63,9 @@ export class Movement {
 
 	@Column({ nullable: true, name: 'relogio_id' })
 	relogioId: number
+
+	@BeforeInsert()
+	generateField() {
+		this.uuid = uuidv4()
+	}
 }
