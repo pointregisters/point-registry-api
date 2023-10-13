@@ -7,13 +7,15 @@ import { Repository } from 'typeorm'
 import { AwsS3Service } from 'src/aws-s3/aws-s3.service'
 import * as moment from 'moment-timezone'
 import * as fs from 'fs'
+import { EmployeesService } from 'src/employees/employees.service'
 
 @Injectable()
 export class MovementsService {
 	constructor(
 		@InjectRepository(Movement)
 		private readonly movementRepository: Repository<Movement>,
-		private awsS3Service: AwsS3Service
+		private awsS3Service: AwsS3Service,
+		private employeeService: EmployeesService
 	) {}
 
 	async createMovementPhotoTablet(
@@ -42,13 +44,15 @@ export class MovementsService {
 					msg: 'Ponto Registrado',
 					date: moment().tz(createMovementDto.region).format('DD-MM-YYYY'),
 					hour: moment().tz(createMovementDto.region).format('HH:mm'),
-					response
+					response,
+					success: true
 				}
 			} else {
 				return {
-					data: 'Aguarde 2 minutos | Último ponto registrado:',
+					msg: 'Aguarde 2 minutos',
 					date: moment(lastMovement.register).format('DD/MM/YYYY'),
-					hour: moment(lastMovement.register).format('HH:mm')
+					hour: moment(lastMovement.register).format('HH:mm'),
+					success: false
 				}
 			}
 		} catch (error) {
@@ -56,6 +60,25 @@ export class MovementsService {
 		}
 	}
 
+	async createMovementToRegistration(
+		createMovementDto: CreateMovementDto,
+		image: Express.Multer.File,
+		registration: string
+	): Promise<Movement> {
+		this.checkDirectory()
+
+		const path = this.saveImageDirectory(createMovementDto, image)
+
+		createMovementDto.image = path
+		createMovementDto.employeePis = await this.getForRegistration(
+			registration,
+			createMovementDto.company
+		)
+
+		const movement = this.movementRepository.create(createMovementDto)
+
+		return await this.movementRepository.save(movement)
+	}
 	async getTracks(
 		pis: string,
 		initialDate: string,
@@ -215,6 +238,25 @@ export class MovementsService {
 			throw new NotFoundException(`Não achei um Company com o id ${uuid}`)
 		}
 		this.movementRepository.softDelete({ uuid })
+	}
+
+	async getForRegistration(
+		registration: string,
+		companyId: any
+	): Promise<string> {
+		const employee = await this.employeeService.findRegistration(
+			registration,
+			companyId
+		)
+
+		if (!employee) {
+			throw new NotFoundException(
+				`Não achei um Employee com o registration: ${registration}`
+			)
+		}
+
+		console.log(employee)
+		return employee.pis
 	}
 
 	private async verifyLastMovement(pis: string, now: string) {
