@@ -16,7 +16,7 @@ export class CreateMovementDto {
 	uuid: string
 
 	@ApiProperty()
-	@IsNotEmpty()
+	@IsOptional()
 	employeePis: string
 
 	@ApiProperty()

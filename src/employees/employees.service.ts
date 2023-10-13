@@ -170,8 +170,8 @@ export class EmployeesService {
 
 	async findRegistration(
 		registration: string,
-		companyId: string
-	): Promise<any> {
+		companyId: number
+	): Promise<Employee> {
 		const User = this.employeeRepository
 			.createQueryBuilder('employee')
 			.select([

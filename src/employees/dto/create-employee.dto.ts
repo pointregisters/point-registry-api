@@ -25,7 +25,7 @@ export class CreateEmployeeDto {
 	image: string
 
 	@ApiProperty()
-	@IsNotEmpty()
+	@IsOptional()
 	pis: string
 
 	@ApiProperty()
