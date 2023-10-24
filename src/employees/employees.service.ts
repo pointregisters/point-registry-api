@@ -170,8 +170,8 @@ export class EmployeesService {
 
 	async findRegistration(
 		registration: string,
-		companyId: string
-	): Promise<any> {
+		companyId: number
+	): Promise<Employee> {
 		const User = this.employeeRepository
 			.createQueryBuilder('employee')
 			.select([
@@ -193,6 +193,27 @@ export class EmployeesService {
 		if (!User) {
 			throw new NotFoundException(
 				`Não achei um Employee com o registration ${registration}`
+			)
+		}
+		return User
+	}
+	async findEmployeesByCompanyId(companyId: number): Promise<Employee[]> {
+		const User = this.employeeRepository
+			.createQueryBuilder('employee')
+			.select([
+				'employee.id as id',
+				'employee.pis as pis',
+				'employee.name as name',
+				'employee.registration as registration',
+				'employee.status as status'
+			])
+			.where('employee.companie_id = :companyId', { companyId })
+			.andWhere('employee.status = 1')
+			.getRawMany()
+
+		if (!User) {
+			throw new NotFoundException(
+				`Não achei um Employees com o CompanyId: ${companyId}`
 			)
 		}
 		return User

@@ -19,7 +19,6 @@ import { UpdateMovementDto } from './dto/update-movement.dto'
 import { Movement } from './entities/movement.entity'
 import { ApiBody, ApiTags } from '@nestjs/swagger'
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express'
-import * as moment from 'moment-timezone'
 
 @Controller('movements')
 @ApiTags('Movements')
@@ -42,6 +41,21 @@ export class MovementsController {
 			console.error(error)
 			throw new Error('Erro ao registrar ponto pelo tablet.')
 		}
+	}
+
+	@Post('/synchronize/:employeeRegistration')
+	@ApiBody({ type: CreateMovementDto })
+	@UseInterceptors(FileInterceptor('image'))
+	async createBach(
+		@UploadedFile() image: Express.Multer.File,
+		@Body() createMovementDto: CreateMovementDto,
+		@Param('employeeRegistration') registration: string
+	): Promise<Movement> {
+		return await this.movementsService.createMovementToRegistration(
+			createMovementDto,
+			image,
+			registration
+		)
 	}
 
 	@Get('employee-pis/period')
@@ -71,16 +85,6 @@ export class MovementsController {
 		@UploadedFile() file: Express.Multer.File
 	): Promise<Movement> {
 		return await this.movementsService.create(createMovementDto, file)
-	}
-
-	@Post('synchronize')
-	@ApiBody({ type: CreateMovementDto })
-	@UseInterceptors(FileInterceptor('file'))
-	async createBach(
-		@Body() createMovementDto: CreateMovementDto,
-		@UploadedFile() file: Express.Multer.File
-	): Promise<Movement> {
-		return await this.movementsService.createBach(createMovementDto, file)
 	}
 
 	@Post('batch')

@@ -51,9 +51,15 @@ export class EmployeesController {
 	@Get(':registration/company/:companyId')
 	async findEmployeeByCompany(
 		@Param('registration') registration: string,
-		@Param('companyId') companyId: string
+		@Param('companyId') companyId: number
 	): Promise<Employee> {
 		return await this.employeesService.findRegistration(registration, companyId)
+	}
+	@Get('/company/:companyId')
+	async findEmployeesByCompanyId(
+		@Param('companyId') companyId: number
+	): Promise<Employee[]> {
+		return await this.employeesService.findEmployeesByCompanyId(companyId)
 	}
 
 	@Patch(':id')
