@@ -207,10 +207,8 @@ export class MovementsService {
 			],
 			where: {
 				employeePis
-			}
-			// relations: {
-			// 	company: true
-			// }
+			},
+			order: { register: 'DESC' }
 		})
 
 		if (!movements || movements.length === 0) {
@@ -255,7 +253,6 @@ export class MovementsService {
 			)
 		}
 
-		console.log(employee)
 		return employee.pis
 	}
 
