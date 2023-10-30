@@ -47,6 +47,10 @@ export class CreateMovementDto {
 	type: number
 
 	@ApiProperty()
+	@IsNotEmpty()
+	formRegister: number
+
+	@ApiProperty()
 	@IsOptional()
 	companieRegister: number
 

@@ -55,6 +55,9 @@ export class Movement {
 	@Column({ nullable: true })
 	type: number
 
+	@Column({ name: 'form_register' })
+	formRegister: number
+
 	@Column({ name: 'companie_register', nullable: true })
 	companieRegister: number
 
