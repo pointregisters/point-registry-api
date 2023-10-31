@@ -17,5 +17,5 @@ jobs:
           server: ${{ secrets.ftp_host }}
           username: ${{ secrets.ftp_user }}
           password: ${{ secrets.ftp_password }}
-           local_path: './static/*'
-            remote_path: './www'
+          local_path: './static/*'
+          remote_path: './www'
