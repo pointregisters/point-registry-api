@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { IsNotEmpty, IsOptional } from 'class-validator'
 import { Company } from 'src/companies/entities/company.entity'
-import { Employee } from 'src/employees/entities/employee.entity'
 
 export enum MovementType {
 	'BIOMETRIA' = 'biometria',
@@ -46,6 +45,10 @@ export class CreateMovementDto {
 	@ApiProperty()
 	@IsNotEmpty()
 	type: number
+
+	@ApiProperty()
+	@IsNotEmpty()
+	formRegister: number
 
 	@ApiProperty()
 	@IsOptional()

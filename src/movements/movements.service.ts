@@ -157,6 +157,7 @@ export class MovementsService {
 				'latitude',
 				'longitude',
 				'type',
+				'formRegister',
 				'nsr'
 			],
 			relations: {
@@ -177,6 +178,7 @@ export class MovementsService {
 				'latitude',
 				'longitude',
 				'type',
+				'formRegister',
 				'nsr'
 			],
 			where: { uuid },
@@ -203,6 +205,7 @@ export class MovementsService {
 				'latitude',
 				'longitude',
 				'type',
+				'formRegister',
 				'nsr'
 			],
 			where: {

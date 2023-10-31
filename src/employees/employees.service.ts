@@ -4,7 +4,6 @@ import { UpdateEmployeeDto } from './dto/update-employee.dto'
 import { Employee } from './entities/employee.entity'
 import { Repository, SelectQueryBuilder } from 'typeorm'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Company } from 'src/companies/entities/company.entity'
 
 @Injectable()
 export class EmployeesService {
@@ -172,7 +171,7 @@ export class EmployeesService {
 		registration: string,
 		companyId: number
 	): Promise<Employee> {
-		const User = this.employeeRepository
+		const User = await this.employeeRepository
 			.createQueryBuilder('employee')
 			.select([
 				'employee.id as id',
