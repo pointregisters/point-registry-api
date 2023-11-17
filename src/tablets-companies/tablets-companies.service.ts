@@ -7,7 +7,7 @@ import { Repository } from 'typeorm'
 import * as moment from 'moment-timezone'
 import { Movement } from 'src/movements/entities/movement.entity'
 import { Region } from 'src/region/entities/region.entity'
-
+import { v4 as uuidv4 } from 'uuid'
 @Injectable()
 export class TabletsCompaniesService {
 	constructor(
@@ -60,7 +60,7 @@ export class TabletsCompaniesService {
 				.getOne()
 
 			if (tablet) {
-				// tablet.uuid = uuid
+				tablet.uuid = uuidv4()
 				tablet.status = true
 				tablet.dataInstalacao = new Date(
 					moment().tz(`${region.description}`).format('YYYY-MM-DD HH:mm:ss')
