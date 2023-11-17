@@ -20,5 +20,9 @@ export class CreateTabletsCompanyDto {
 
 	@ApiProperty()
 	@IsOptional()
+	uuid: string
+
+	@ApiProperty()
+	@IsOptional()
 	dataInstalacao: string
 }

@@ -1,8 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from 'typeorm'
 
-import { v4 as uuidv4 } from 'uuid'
-
 @Entity('tablets_companies')
 export class TabletsCompany {
 	@PrimaryGeneratedColumn()
@@ -45,7 +43,6 @@ export class TabletsCompany {
 
 	@BeforeInsert()
 	generateFields() {
-		this.uuid = uuidv4()
 		this.token = this.generateRandomToken()
 		this.dataRegistro = new Date()
 	}

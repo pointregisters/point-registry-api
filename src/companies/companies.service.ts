@@ -46,7 +46,8 @@ export class CompaniesService {
 				'status',
 				'email',
 				'local',
-				'regionId'
+				'regionId',
+				'nomeFantasia'
 			],
 			where: { id }
 		})
