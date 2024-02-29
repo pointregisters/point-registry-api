@@ -1,13 +1,14 @@
-import { Injectable, NotFoundException, HttpException } from '@nestjs/common'
+import { HttpException, Injectable, NotFoundException } from '@nestjs/common'
+import { InjectRepository } from '@nestjs/typeorm'
+import * as fs from 'fs'
+import * as moment from 'moment-timezone'
+import { AwsS3Service } from 'src/aws-s3/aws-s3.service'
+import { EmployeesService } from 'src/employees/employees.service'
+import { Repository } from 'typeorm'
+
 import { CreateMovementDto } from './dto/create-movement.dto'
 import { UpdateMovementDto } from './dto/update-movement.dto'
-import { InjectRepository } from '@nestjs/typeorm'
 import { Movement } from './entities/movement.entity'
-import { Repository } from 'typeorm'
-import { AwsS3Service } from 'src/aws-s3/aws-s3.service'
-import * as moment from 'moment-timezone'
-import * as fs from 'fs'
-import { EmployeesService } from 'src/employees/employees.service'
 
 @Injectable()
 export class MovementsService {
@@ -273,7 +274,7 @@ export class MovementsService {
 		createMovementDto: CreateMovementDto,
 		image: Express.Multer.File
 	) {
-		const path = `./assets/photos_taken/${
+		const path = `assets/photos_taken/${
 			createMovementDto.employeePis
 		}-${moment()
 			.tz(createMovementDto.region)
