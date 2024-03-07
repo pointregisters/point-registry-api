@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm'
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm'
 
 @Entity('communications')
 export class Communication {
@@ -8,28 +8,33 @@ export class Communication {
 	@Column({ type: 'text' })
 	token: string
 
-	@Column({ type: 'bigint' })
-	companie_id: number
+	@Column({ type: 'bigint', name: 'status_update' })
+	companyId: number
 
 	@Column({ type: 'bigint' })
 	matriz: number
 
-	@Column({ type: 'text' })
-	titulo: string
+	@Column({ type: 'text', name: 'titulo' })
+	title: string
 
 	@Column({ type: 'text', nullable: true })
 	description: string
 
-	@Column({ type: 'date', nullable: true })
-	date_register: Date
+	@Column({ type: 'date', nullable: true, name: 'date_register' })
+	dateRegister: Date
 
-	@Column({ type: 'date', nullable: true })
-	date_reuniao: Date
+	@Column({ type: 'date', nullable: true, name: 'date_reuniao' })
+	dateReunion: Date
 
 	@Column({ type: 'int', default: 1 })
 	status: number
 
-	@Column({ type: 'bigint', nullable: true, comment: 'opção gestor' })
-	users_id: number
+	@Column({
+		type: 'bigint',
+		nullable: true,
+		comment: 'opção gestor',
+		name: 'users_id'
+	})
+	usersId: number
 	notifications: any
 }

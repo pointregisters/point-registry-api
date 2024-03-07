@@ -1,13 +1,14 @@
 import {
-	Controller,
-	Get,
-	Post,
 	Body,
-	Patch,
-	Param,
+	Controller,
 	Delete,
+	Get,
+	Param,
+	Patch,
+	Post,
 	Put
 } from '@nestjs/common'
+
 import { CommunicationsNotificationsService } from './communications_notifications.service'
 import { CreateCommunicationsNotificationDto } from './dto/create-communications_notification.dto'
 import { UpdateCommunicationsNotificationDto } from './dto/update-communications_notification.dto'
@@ -18,7 +19,7 @@ export class CommunicationsNotificationsController {
 		private readonly communicationsNotificationsService: CommunicationsNotificationsService
 	) {}
 
-	@Get('notifications/:pis/quantity')
+	@Get(':pis/quantity')
 	async getNotificationsQuantity(@Param('pis') pis: string) {
 		const quantity =
 			await this.communicationsNotificationsService.getNotificationsQuantity(
@@ -27,17 +28,17 @@ export class CommunicationsNotificationsController {
 		return { data: quantity }
 	}
 
-	@Get('notifications/read/:pis')
+	@Get('read/:pis')
 	async getReadNotifications(@Param('pis') pis: string) {
 		return this.communicationsNotificationsService.getReadNotifications(pis)
 	}
 
-	@Get('notifications/unread/:pis')
+	@Get('unread/:pis')
 	async getUnreadNotifications(@Param('pis') pis: string) {
 		return this.communicationsNotificationsService.getUnreadNotifications(pis)
 	}
 
-	@Put('notifications/:id/update')
+	@Put(':id/update')
 	async updateNotifications(@Param('id') id: number) {
 		return this.communicationsNotificationsService.updateNotification(id)
 	}
