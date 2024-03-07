@@ -1,18 +1,19 @@
 import {
-	Controller,
-	Get,
-	Post,
 	Body,
-	Patch,
-	Param,
+	Controller,
 	Delete,
+	Get,
 	HttpCode,
-	HttpStatus
+	HttpStatus,
+	Param,
+	Patch,
+	Post
 } from '@nestjs/common'
-import { EmployeesService } from './employees.service'
+import { ApiBody, ApiTags } from '@nestjs/swagger'
+
 import { CreateEmployeeDto } from './dto/create-employee.dto'
 import { UpdateEmployeeDto } from './dto/update-employee.dto'
-import { ApiBody, ApiTags } from '@nestjs/swagger'
+import { EmployeesService } from './employees.service'
 import { Employee } from './entities/employee.entity'
 
 @Controller('employees')
@@ -22,12 +23,12 @@ export class EmployeesController {
 
 	@Get('/verify/:phoneUuid')
 	async verify(@Param('phoneUuid') phoneUuid: string) {
-		return this.employeesService.verify(phoneUuid)
+		return await this.employeesService.verify(phoneUuid)
 	}
 
 	@Post('/validate')
-	async validate(@Body() body: { cpfOrPis: string; phoneUuid: string }) {
-		return this.employeesService.validate(body.cpfOrPis, body.phoneUuid)
+	async validate(@Body() body: { cpf: string; phoneUuid: string }) {
+		return this.employeesService.validate(body.cpf, body.phoneUuid)
 	}
 
 	@Post()
