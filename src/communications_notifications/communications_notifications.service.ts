@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common'
+import { InjectRepository } from '@nestjs/typeorm'
+import { Repository } from 'typeorm'
+
 import { CreateCommunicationsNotificationDto } from './dto/create-communications_notification.dto'
 import { UpdateCommunicationsNotificationDto } from './dto/update-communications_notification.dto'
-import { InjectRepository } from '@nestjs/typeorm'
 import { CommunicationNotification } from './entities/communications_notification.entity'
-import { Repository } from 'typeorm'
 
 @Injectable()
 export class CommunicationsNotificationsService {
@@ -24,39 +25,95 @@ export class CommunicationsNotificationsService {
 	}
 
 	async getReadNotifications(pis: string) {
-		return this.communicationNotificationRepository
+		const comunication = await this.communicationNotificationRepository
 			.createQueryBuilder('cn')
-			.innerJoin('cn.communication', 'c')
-			.innerJoin('cn.employee', 'emp')
-			.where('emp.pis = :pis', { pis })
-			.andWhere('cn.status = 1')
-			.orderBy('cn.data_confirmacao')
 			.select([
 				'cn.id as cn_id',
 				'cn.status as cn_status',
 				'DATE_FORMAT(cn.data_confirmacao, "%d/%m/%Y") as data_confirmacao',
-				'c.*',
-				'DATE_FORMAT(cn.data_notificacao, "%d/%m/%Y") as data_reuniao'
+				'DATE_FORMAT(cn.data_notificacao, "%d/%m/%Y") as data_reuniao',
+				'c.id as c_id',
+				'c.token as c_token',
+				'c.companie_id as c_companie_id',
+				'c.matriz as c_matriz',
+				'c.titulo as c_titulo',
+				'c.description as c_description',
+				'c.date_register as c_date_register',
+				'c.date_reuniao as c_date_reuniao',
+				'c.status as c_status',
+				'c.users_id as c_users_id'
 			])
+			.leftJoin('communications', 'c', 'c.id = cn.comunication_id')
+			.leftJoin('employees', 'e', 'e.id = cn.employee_id')
+			.where('e.pis = :pis', { pis })
+			.andWhere('cn.status = 1')
+			.orderBy('cn.data_confirmacao')
 			.getRawMany()
+
+		return comunication.map((item: any) => ({
+			id: item.cn_id,
+			status: item.cn_status,
+			dataConfirmation: item.data_confirmacao,
+			dataNotification: item.data_reuniao,
+			communications: {
+				id: item.c_id,
+				token: item.c_token,
+				companyId: item.c_companie_id,
+				matriz: item.c_matriz,
+				title: item.c_titulo,
+				description: item.c_description,
+				dateRegister: item.c_date_register,
+				dateReunion: item.c_date_reuniao,
+				status: item.c_status,
+				usersId: item.c_users_id
+			}
+		}))
 	}
 
 	async getUnreadNotifications(pis: string) {
-		return this.communicationNotificationRepository
+		const comunication = await this.communicationNotificationRepository
 			.createQueryBuilder('cn')
-			.innerJoin('cn.communication', 'c')
-			.innerJoin('cn.employee', 'emp')
-			.where('emp.pis = :pis', { pis })
-			.andWhere('cn.status = 0')
-			.orderBy('cn.data_notificacao')
 			.select([
 				'cn.id as cn_id',
 				'cn.status as cn_status',
 				'DATE_FORMAT(cn.data_confirmacao, "%d/%m/%Y") as data_confirmacao',
-				'c.*',
-				'DATE_FORMAT(cn.data_notificacao, "%d/%m/%Y") as data_reuniao'
+				'DATE_FORMAT(cn.data_notificacao, "%d/%m/%Y") as data_reuniao',
+				'c.id as c_id',
+				'c.token as c_token',
+				'c.companie_id as c_companie_id',
+				'c.matriz as c_matriz',
+				'c.titulo as c_titulo',
+				'c.description as c_description',
+				'c.date_register as c_date_register',
+				'c.date_reuniao as c_date_reuniao',
+				'c.status as c_status',
+				'c.users_id as c_users_id'
 			])
+			.leftJoin('communications', 'c', 'c.id = cn.comunication_id')
+			.leftJoin('employees', 'e', 'e.id = cn.employee_id')
+			.where('e.pis = :pis', { pis })
+			.andWhere('cn.status = 0')
+			.orderBy('cn.data_confirmacao')
 			.getRawMany()
+
+		return comunication.map((item: any) => ({
+			id: item.cn_id,
+			status: item.cn_status,
+			dataConfirmation: item.data_confirmacao,
+			dataNotification: item.data_reuniao,
+			communications: {
+				id: item.c_id,
+				token: item.c_token,
+				companyId: item.c_companie_id,
+				matriz: item.c_matriz,
+				title: item.c_titulo,
+				description: item.c_description,
+				dateRegister: item.c_date_register,
+				dateReunion: item.c_date_reuniao,
+				status: item.c_status,
+				usersId: item.c_users_id
+			}
+		}))
 	}
 
 	async updateNotification(id: number) {
@@ -73,7 +130,7 @@ export class CommunicationsNotificationsService {
 		}
 
 		notification.status = 1
-		notification.data_confirmacao = new Date()
+		notification.dataConfirmation = new Date()
 
 		await this.communicationNotificationRepository.save(notification)
 
@@ -86,6 +143,7 @@ export class CommunicationsNotificationsService {
 			})
 		}
 	}
+
 	create(
 		createCommunicationsNotificationDto: CreateCommunicationsNotificationDto
 	) {
