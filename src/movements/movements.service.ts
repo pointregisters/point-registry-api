@@ -90,10 +90,10 @@ export class MovementsService {
 				.createQueryBuilder('mov')
 				.select([
 					'mov.uuid',
-					'mov.uuid',
 					'mov.image',
 					'mov.date',
 					'mov.register',
+					'mov.formRegister',
 					'mov.company',
 					'mov.employeePis',
 					'mov.latitude',

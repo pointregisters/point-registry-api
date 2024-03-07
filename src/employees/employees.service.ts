@@ -36,9 +36,6 @@ export class EmployeesService {
 				.leftJoin('companies', 'comp', 'comp.id = colab.contract')
 				.leftJoin('region', 'region', 'region.id = comp.region_id')
 				.where('colab.phone_uuid = :phoneUuid', { phoneUuid })
-				.andWhere(
-					'(colab.ponto_qrcode = 1 OR colab.ponto_celular = 1 OR colab.ponto_biometria = 1 OR colab.ponto_matricula = 1)'
-				)
 				.andWhere('colab.phone_status = 1')
 				.andWhere('colab.status = 1')
 
@@ -54,17 +51,12 @@ export class EmployeesService {
 	}
 
 	async validate(cpf: string, phoneMei: string) {
-		console.log(cpf)
-		console.log(phoneMei)
 		try {
 			const employee = await this.employeeRepository.findOne({
-				where: {
-					cpf: cpf,
-					pontoCelular: 1,
-					pontoQrcode: 1,
-					status: 1,
-					phoneStatus: 0
-				},
+				where: [
+					{ cpf: cpf, pontoCelular: 1, status: 1, phoneStatus: 0 },
+					{ cpf: cpf, pontoQrcode: 1, status: 1, phoneStatus: 0 }
+				],
 				relations: {
 					company: true
 				}
@@ -118,13 +110,10 @@ export class EmployeesService {
 				}
 			} else {
 				const employeeWithPhoneStatus = await this.employeeRepository.findOne({
-					where: {
-						cpf: cpf,
-						pontoCelular: 1,
-						pontoQrcode: 1,
-						status: 1,
-						phoneStatus: 1
-					},
+					where: [
+						{ cpf: cpf, pontoCelular: 1, status: 1, phoneStatus: 1 },
+						{ cpf: cpf, pontoQrcode: 1, status: 1, phoneStatus: 1 }
+					],
 					relations: {
 						company: true
 					}
