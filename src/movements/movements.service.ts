@@ -260,7 +260,7 @@ export class MovementsService {
 		return employee.pis
 	}
 
-	private async verifyLastMovement(pis: string, now: string) {
+	async verifyLastMovement(pis: string, now: string) {
 		return await this.movementRepository
 			.createQueryBuilder('movement')
 			.where('movement.employeePis = :pis', { pis })
