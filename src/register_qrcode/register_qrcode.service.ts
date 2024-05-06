@@ -1,16 +1,20 @@
 import { Injectable } from '@nestjs/common'
+import { InjectRepository } from '@nestjs/typeorm'
+import * as moment from 'moment-timezone'
+import { Movement } from 'src/movements/entities/movement.entity'
+import { Repository } from 'typeorm'
+
 import { CreateRegisterQrcodeDto } from './dto/create-register_qrcode.dto'
 import { UpdateRegisterQrcodeDto } from './dto/update-register_qrcode.dto'
-import { InjectRepository } from '@nestjs/typeorm'
 import { RegisterQrcode } from './entities/register_qrcode.entity'
-import { Repository } from 'typeorm'
-import * as moment from 'moment-timezone'
 
 @Injectable()
 export class RegisterQrcodeService {
 	constructor(
 		@InjectRepository(RegisterQrcode)
-		private readonly registerQrcodeRepository: Repository<RegisterQrcode>
+		private readonly registerQrcodeRepository: Repository<RegisterQrcode>,
+		@InjectRepository(Movement)
+		private readonly movementRepository: Repository<Movement>
 	) {}
 
 	async checkQRCode(data: string[], pis: string, region: string): Promise<any> {
@@ -29,21 +33,15 @@ export class RegisterQrcodeService {
 				.getRawOne()
 
 			if (result) {
-				const check = await this.registerQrcodeRepository
-					.createQueryBuilder('mov')
-					.where('mov.employee_pis = :pis', { pis })
-					.andWhere('TIMESTAMPDIFF(MINUTE, mov.register, :currentTime) < 2', {
-						currentTime: moment().tz(region).format('YYYY-MM-DD HH:mm:ss')
-					})
-					.orderBy('mov.register', 'DESC')
-					.limit(1)
-					.getRawOne()
+				const now = moment().tz(region).format('YYYY-MM-DD HH:mm:ss')
+				const check = await this.verifyLastMovement(pis, now)
 
 				if (!check) {
 					return { data: result, status: 'success' }
 				} else {
 					return {
-						data: 'Aguarde 2 minutos \n\n Último ponto registrado:',
+						data: null,
+						msg: 'Aguarde 2 minutos \n\n Último ponto registrado:',
 						date: moment(check.register).format('DD/MM/YYYY'),
 						hour: moment(check.register).format('HH:mm'),
 						status: 'wait'
@@ -71,6 +69,16 @@ export class RegisterQrcodeService {
 				id
 			}
 		})
+	}
+
+	private async verifyLastMovement(pis: string, now: string) {
+		return await this.movementRepository
+			.createQueryBuilder('movement')
+			.where('movement.employeePis = :pis', { pis })
+			.andWhere('TIMESTAMPDIFF(MINUTE, movement.register, :now) < 2', { now })
+			.orderBy('movement.register', 'DESC')
+			.limit(1)
+			.getOne()
 	}
 
 	update(id: number, updateRegisterQrcodeDto: UpdateRegisterQrcodeDto) {
