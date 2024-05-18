@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import * as crypto from 'crypto'
+import * as bcrypt from 'bcrypt'
 import { Region } from 'src/region/entities/region.entity'
 import { Repository, SelectQueryBuilder } from 'typeorm'
 
@@ -16,39 +16,6 @@ export class EmployeesService {
 		@InjectRepository(Region)
 		private readonly regionRepository: Repository<Region>
 	) {}
-
-	async verify(phoneUuid: string): Promise<any> {
-		try {
-			const queryBuilder: SelectQueryBuilder<Employee> = this.employeeRepository
-				.createQueryBuilder('colab')
-				.select([
-					'colab.id AS id',
-					'colab.name AS name',
-					'colab.pis AS pis',
-					'colab.registration AS registration',
-					'colab.ponto_celular AS pontoCelular',
-					'colab.ponto_qrcode AS pontoQrcode',
-					'colab.ponto_biometria AS pontoBiometria',
-					'colab.ponto_matricula AS pontoMatricula',
-					'colab.company AS companyId',
-					'region.description AS regionDescription '
-				])
-				.leftJoin('companies', 'comp', 'comp.id = colab.contract')
-				.leftJoin('region', 'region', 'region.id = comp.region_id')
-				.where('colab.phone_uuid = :phoneUuid', { phoneUuid })
-				.andWhere('colab.phone_status = 1')
-				.andWhere('colab.status = 1')
-
-			const result = await queryBuilder.getRawOne()
-
-			if (result) {
-				return result
-			}
-			return { ready: false }
-		} catch (error) {
-			throw new Error('Failed to execute the query: ' + error.message)
-		}
-	}
 
 	async validate(cpf: string, phoneMei: string) {
 		try {
@@ -69,10 +36,8 @@ export class EmployeesService {
 				.getOne()
 
 			if (employee) {
-				const encryptedPhoneUuid = crypto
-					.createHash('sha256')
-					.update(phoneMei)
-					.digest('hex')
+				const combinedIdentifier = `${cpf}-${phoneMei}`
+				const encryptedPhoneUuid = bcrypt.hashSync(combinedIdentifier, 10)
 
 				employee.phoneUuid = encryptedPhoneUuid
 				employee.phoneStatus = 1
@@ -125,6 +90,7 @@ export class EmployeesService {
 						name,
 						company,
 						pis,
+						registration,
 						pontoCelular,
 						pontoQrcode,
 						pontoBiometria,
@@ -133,13 +99,14 @@ export class EmployeesService {
 						phoneStatus
 					} = employeeWithPhoneStatus
 
-					return {
-						ready: false,
-						status: 'EXISTS',
-						data: {
+					const combinedIdentifier = `${cpf}-${phoneMei}`
+					if (bcrypt.compareSync(combinedIdentifier, phoneUuid)) {
+						return {
+							status: 'AUTHORIZED',
 							id,
 							name,
 							pis,
+							registration,
 							pontoCelular,
 							pontoQrcode,
 							pontoBiometria,
@@ -150,6 +117,22 @@ export class EmployeesService {
 							company
 						}
 					}
+
+					return {
+						status: 'EXISTS',
+						id,
+						name,
+						pis,
+						registration,
+						pontoCelular,
+						pontoQrcode,
+						pontoBiometria,
+						pontoMatricula,
+						phoneUuid,
+						phoneStatus,
+						regionDescription: region.description,
+						company
+					}
 				} else {
 					return {
 						ready: false,
@@ -157,6 +140,39 @@ export class EmployeesService {
 					}
 				}
 			}
+		} catch (error) {
+			throw new Error('Failed to execute the query: ' + error.message)
+		}
+	}
+
+	async verify(phoneUuid: string): Promise<any> {
+		try {
+			const queryBuilder: SelectQueryBuilder<Employee> = this.employeeRepository
+				.createQueryBuilder('colab')
+				.select([
+					'colab.id AS id',
+					'colab.name AS name',
+					'colab.pis AS pis',
+					'colab.registration AS registration',
+					'colab.ponto_celular AS pontoCelular',
+					'colab.ponto_qrcode AS pontoQrcode',
+					'colab.ponto_biometria AS pontoBiometria',
+					'colab.ponto_matricula AS pontoMatricula',
+					'colab.company AS companyId',
+					'region.description AS regionDescription '
+				])
+				.leftJoin('companies', 'comp', 'comp.id = colab.contract')
+				.leftJoin('region', 'region', 'region.id = comp.region_id')
+				.where('colab.phone_uuid = :phoneUuid', { phoneUuid })
+				.andWhere('colab.phone_status = 1')
+				.andWhere('colab.status = 1')
+
+			const result = await queryBuilder.getRawOne()
+
+			if (result) {
+				return result
+			}
+			return { ready: false }
 		} catch (error) {
 			throw new Error('Failed to execute the query: ' + error.message)
 		}
