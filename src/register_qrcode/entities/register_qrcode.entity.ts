@@ -1,10 +1,10 @@
 import { Company } from 'src/companies/entities/company.entity'
 import {
-	Entity,
-	PrimaryGeneratedColumn,
 	Column,
+	Entity,
+	JoinColumn,
 	ManyToOne,
-	JoinColumn
+	PrimaryGeneratedColumn
 } from 'typeorm'
 
 @Entity('register_qrcode')
@@ -21,8 +21,8 @@ export class RegisterQrcode {
 	@Column({ type: 'datetime', nullable: true })
 	register: Date
 
-	@Column({ type: 'int' })
-	status_qrcode: number
+	@Column({ type: 'int', name: 'status_qrcode' })
+	statusQrCode: number
 
 	@ManyToOne(() => Company)
 	@JoinColumn({ name: 'companie_id' })
@@ -31,12 +31,27 @@ export class RegisterQrcode {
 	@Column({ type: 'int', nullable: true })
 	matriz: number
 
-	@Column({ type: 'varchar', length: 200, nullable: true })
-	companie_md5: string
+	@Column({
+		type: 'varchar',
+		length: 200,
+		nullable: true,
+		name: 'companie_md5'
+	})
+	companyMd5: string
 
-	@Column({ type: 'varchar', length: 200, nullable: true })
-	matriz_md5: string
+	@Column({
+		type: 'varchar',
+		length: 200,
+		nullable: true,
+		name: 'matriz_md5'
+	})
+	matrizMd5: string
 
-	@Column({ type: 'varchar', length: 200, nullable: true })
-	register_md5: string
+	@Column({
+		type: 'varchar',
+		length: 200,
+		nullable: true,
+		name: 'register_md5'
+	})
+	registerMd5: string
 }
