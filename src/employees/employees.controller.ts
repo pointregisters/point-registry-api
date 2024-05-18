@@ -21,9 +21,9 @@ import { Employee } from './entities/employee.entity'
 export class EmployeesController {
 	constructor(private readonly employeesService: EmployeesService) {}
 
-	@Get('/verify/:phoneUuid')
-	async verify(@Param('phoneUuid') phoneUuid: string) {
-		return await this.employeesService.verify(phoneUuid)
+	@Post('/verify')
+	async verify(@Body() body: { phoneUuid: string }) {
+		return await this.employeesService.verify(body.phoneUuid)
 	}
 
 	@Post('/validate')
