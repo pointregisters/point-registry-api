@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { IsPublic } from './auth/decorators/is-public.decorator';
 
 @Injectable()
 export class AppService {

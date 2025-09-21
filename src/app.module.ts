@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
+import { AuthModule } from './auth/auth.module'
 import { EmployeesModule } from './modules/employees/employees.module'
 import { CompaniesModule } from './modules/companies/companies.module'
 import { TabletsCompaniesModule } from './modules/tablets-companies/tablets-companies.module'
@@ -16,6 +17,8 @@ import { CommunicationsNotificationsModule } from './modules/communications_noti
 import * as Joi from '@hapi/joi'
 import { readFileSync } from 'fs'
 import { join } from 'path'
+import { APP_GUARD } from '@nestjs/core'
+import { JwtAuthGuard } from './auth/guards/jwt-auth.guard'
 
 const packageJson = JSON.parse(
 	readFileSync(join(__dirname, '..', 'package.json'), 'utf8')
@@ -42,6 +45,7 @@ const packageJson = JSON.parse(
 				)
 			})
 		}),
+		AuthModule,
 		EmployeesModule,
 		CompaniesModule,
 		TabletsCompaniesModule,
@@ -55,6 +59,12 @@ const packageJson = JSON.parse(
 		CommunicationsNotificationsModule
 	],
 	controllers: [AppController],
-	providers: [AppService]
+	providers: [
+		AppService,
+		{
+			provide: APP_GUARD,
+			useClass: JwtAuthGuard
+		}
+	]
 })
 export class AppModule {}
