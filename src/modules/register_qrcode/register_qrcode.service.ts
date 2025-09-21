@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import * as moment from 'moment-timezone'
-import { Movement } from 'src/movements/entities/movement.entity'
+import { Movement } from 'src/modules/movements/entities/movement.entity'
 import { Repository } from 'typeorm'
 
 import { CreateRegisterQrcodeDto } from './dto/create-register_qrcode.dto'

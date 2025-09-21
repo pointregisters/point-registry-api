@@ -1,5 +1,4 @@
-import { Communication } from 'src/communications/entities/communications.entity'
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm'
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm'
 
 @Entity('communications_notifications')
 export class CommunicationNotification {

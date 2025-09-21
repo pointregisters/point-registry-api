@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import { Movement } from 'src/movements/entities/movement.entity'
+import { Movement } from 'src/modules/movements/entities/movement.entity'
 
 import { RegisterQrcode } from './entities/register_qrcode.entity'
 import { RegisterQrcodeController } from './register_qrcode.controller'

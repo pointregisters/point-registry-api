@@ -1,7 +1,7 @@
 import { IsOptional, IsNotEmpty } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
-import { Company } from 'src/companies/entities/company.entity'
-import { Department } from 'src/department/entities/department.entity'
+import { Company } from 'src/modules/companies/entities/company.entity'
+import { Department } from 'src/modules/department/entities/department.entity'
 
 export class CreateEmployeeDto {
 	@ApiProperty()

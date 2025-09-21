@@ -1,6 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger'
 import * as crypto from 'crypto'
-import { Company } from 'src/companies/entities/company.entity'
+import { Company } from 'src/modules/companies/entities/company.entity'
 import {
 	BeforeInsert,
 	Column,

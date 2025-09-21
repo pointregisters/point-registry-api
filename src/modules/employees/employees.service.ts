@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import * as bcrypt from 'bcrypt'
-import { Region } from 'src/region/entities/region.entity'
+import { Region } from 'src/modules/region/entities/region.entity'
 import { Repository, SelectQueryBuilder } from 'typeorm'
 
 import { CreateEmployeeDto } from './dto/create-employee.dto'

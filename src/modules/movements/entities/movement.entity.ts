@@ -1,6 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger'
-import { Company } from 'src/companies/entities/company.entity'
-import { Employee } from 'src/employees/entities/employee.entity'
+import { Company } from 'src/modules/companies/entities/company.entity'
 import {
 	BeforeInsert,
 	Column,

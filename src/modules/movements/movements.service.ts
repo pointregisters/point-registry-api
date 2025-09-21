@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm'
 import * as fs from 'fs'
 import * as moment from 'moment-timezone'
 import { AwsS3Service } from 'src/aws-s3/aws-s3.service'
-import { EmployeesService } from 'src/employees/employees.service'
+import { EmployeesService } from 'src/modules/employees/employees.service'
 import { Repository } from 'typeorm'
 
 import { CreateMovementDto } from './dto/create-movement.dto'
@@ -15,8 +15,8 @@ export class MovementsService {
 	constructor(
 		@InjectRepository(Movement)
 		private readonly movementRepository: Repository<Movement>,
-		private awsS3Service: AwsS3Service,
-		private employeeService: EmployeesService
+		private readonly awsS3Service: AwsS3Service,
+		private readonly employeeService: EmployeesService
 	) {}
 
 	async createMovementPhotoTablet(

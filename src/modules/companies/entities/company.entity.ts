@@ -1,6 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger'
-import { Employee } from 'src/employees/entities/employee.entity'
-import { Movement } from 'src/movements/entities/movement.entity'
+import { Employee } from 'src/modules/employees/entities/employee.entity'
+import { Movement } from 'src/modules/movements/entities/movement.entity'
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
 
 export enum Type {

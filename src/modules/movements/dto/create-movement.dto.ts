@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { IsNotEmpty, IsOptional } from 'class-validator'
-import { Company } from 'src/companies/entities/company.entity'
+import { Company } from 'src/modules/companies/entities/company.entity'
 
 export enum MovementType {
 	'BIOMETRIA' = 'biometria',

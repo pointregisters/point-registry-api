@@ -5,8 +5,8 @@ import { TabletsCompany } from './entities/tablets-company.entity'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import * as moment from 'moment-timezone'
-import { Movement } from 'src/movements/entities/movement.entity'
-import { Region } from 'src/region/entities/region.entity'
+import { Movement } from 'src/modules/movements/entities/movement.entity'
+import { Region } from 'src/modules/region/entities/region.entity'
 import { v4 as uuidv4 } from 'uuid'
 @Injectable()
 export class TabletsCompaniesService {
