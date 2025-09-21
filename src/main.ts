@@ -14,14 +14,26 @@ async function bootstrap() {
 	)
 
 	const config = new DocumentBuilder()
+		.addSecurity('bearer', {
+			type: 'http',
+			scheme: 'bearer'
+		})
 		.setTitle('Point Registry API')
 		.setDescription('Point Registry API')
 		.setVersion('1.1.2')
 		.build()
 	const document = SwaggerModule.createDocument(app, config)
-	SwaggerModule.setup('api', app, document)
+	SwaggerModule.setup('docs', app, document)
+
 	app.enableCors()
 
-	await app.listen(process.env.PORT ? parseInt(process.env.PORT) : 3000)
+	const PORT = process.env.PORT ?? 3000
+
+	await app.listen(PORT, '0.0.0.0')
+
+	console.log(`[🤖]: Application is running on: ${await app.getUrl()}`)
 }
-bootstrap()
+
+bootstrap().catch((e) => {
+	console.log(e)
+})
