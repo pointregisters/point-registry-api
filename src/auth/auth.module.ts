@@ -7,7 +7,6 @@ import {
 import { ConfigModule } from '@nestjs/config'
 import { JwtModule } from '@nestjs/jwt'
 import { AuthService } from './auth.service'
-import { AuthController } from './auth.controller'
 import { JwtStrategy } from './strategies/jwt.strategy'
 import { LoginValidationMiddleware } from './middlewares/login-validation.middleware'
 import { PassportModule } from '@nestjs/passport'
@@ -23,7 +22,6 @@ import { EmployeesModule } from 'src/modules/employees/employees.module'
 			signOptions: { expiresIn: '1d' }
 		})
 	],
-	controllers: [AuthController],
 	providers: [AuthService, JwtStrategy],
 	exports: [AuthService]
 })
