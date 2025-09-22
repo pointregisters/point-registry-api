@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common'
-import { compareSync } from 'bcrypt'
 import { JwtService } from '@nestjs/jwt'
 import { UserToken } from './models/UserToken'
 import { UserPayload } from './models/UserPayload'
@@ -26,21 +25,5 @@ export class AuthService {
 			email: user.email,
 			userType: user.registration
 		}
-	}
-
-	async validateUser(email: string, password: string) {
-		let user: Employee
-		try {
-			// user = await this.personService.findEmail(email)
-		} catch (error) {
-			return null
-		}
-
-		const isPasswordValid = compareSync(password, user.cpf)
-		if (!isPasswordValid) return null
-
-		// await this.personService.updateLastLogin(user.id)
-
-		return user
 	}
 }

@@ -8,7 +8,6 @@ import { ConfigModule } from '@nestjs/config'
 import { JwtModule } from '@nestjs/jwt'
 import { AuthService } from './auth.service'
 import { AuthController } from './auth.controller'
-import { LocalStrategy } from './strategies/local.strategy'
 import { JwtStrategy } from './strategies/jwt.strategy'
 import { LoginValidationMiddleware } from './middlewares/login-validation.middleware'
 import { PassportModule } from '@nestjs/passport'
@@ -25,7 +24,7 @@ import { EmployeesModule } from 'src/modules/employees/employees.module'
 		})
 	],
 	controllers: [AuthController],
-	providers: [AuthService, LocalStrategy, JwtStrategy],
+	providers: [AuthService, JwtStrategy],
 	exports: [AuthService]
 })
 export class AuthModule implements NestModule {
