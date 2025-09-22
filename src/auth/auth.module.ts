@@ -11,11 +11,13 @@ import { JwtStrategy } from './strategies/jwt.strategy'
 import { LoginValidationMiddleware } from './middlewares/login-validation.middleware'
 import { PassportModule } from '@nestjs/passport'
 import { EmployeesModule } from 'src/modules/employees/employees.module'
+import { TabletsCompaniesModule } from 'src/modules/tablets-companies/tablets-companies.module'
 
 @Module({
 	imports: [
 		ConfigModule.forRoot(),
 		forwardRef(() => EmployeesModule),
+		forwardRef(() => TabletsCompaniesModule),
 		PassportModule,
 		JwtModule.register({
 			privateKey: process.env.JWT_SECRET_KEY,

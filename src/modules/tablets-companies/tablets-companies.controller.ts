@@ -7,7 +7,10 @@ import {
 	Param,
 	Delete,
 	HttpCode,
-	HttpStatus
+	HttpStatus,
+	Inject,
+	forwardRef,
+	Request
 } from '@nestjs/common'
 import {
 	ApiBody,
@@ -24,11 +27,16 @@ import { TabletsCompaniesService } from './tablets-companies.service'
 import { CreateTabletsCompanyDto } from './dto/create-tablets-company.dto'
 import { UpdateTabletsCompanyDto } from './dto/update-tablets-company.dto'
 import { TabletsCompany } from './entities/tablets-company.entity'
+import { AuthService } from 'src/auth/auth.service'
+import { IsPublic } from 'src/auth/decorators/is-public.decorator'
+
 @Controller('tablets-companies')
 @ApiTags('Tablets-Companies')
 export class TabletsCompaniesController {
 	constructor(
-		private readonly tabletsCompaniesService: TabletsCompaniesService
+		private readonly tabletsCompaniesService: TabletsCompaniesService,
+		@Inject(forwardRef(() => AuthService))
+		private readonly authService: AuthService
 	) {}
 
 	@Post()
@@ -87,19 +95,55 @@ export class TabletsCompaniesController {
 	@ApiForbiddenResponse(DefaultForbiddenResponse)
 	@ApiInternalServerErrorResponse(DefaultInternalServerErrorResponse)
 	async verifyTablet(@Param('uuid') uuid: string) {
-		const result = await this.tabletsCompaniesService.findTabletsCompanyByUuid(
-			uuid
-		)
+		const result =
+			await this.tabletsCompaniesService.findTabletsCompanyByUuid(uuid)
+
+		// Se encontrou o tablet e está ativo, gere o token
+		if (result && result.id) {
+			// Crie um objeto mock para o login do tablet
+			const mockTablet = {
+				id: result.id,
+				registration: `tablet-${result.id}` // Usando um registration fictício para tablets
+			} as any
+
+			const token = await this.authService.login(mockTablet)
+			return {
+				...result,
+				token: token.access_token
+			}
+		}
+
 		return result
 	}
 
+	@IsPublic()
 	@Post('/validate-tablet')
 	@ApiUnauthorizedResponse(DefaultUnauthorizedResponse)
 	@ApiForbiddenResponse(DefaultForbiddenResponse)
 	@ApiInternalServerErrorResponse(DefaultInternalServerErrorResponse)
 	async validateTablet(@Body() body: { uuid: string; token: string }) {
 		const { uuid, token } = body
-		return this.tabletsCompaniesService.validateTablet(uuid, token)
+		const tablet = await this.tabletsCompaniesService.validateTablet(
+			uuid,
+			token
+		)
+
+		// Se a validação foi bem-sucedida e o tablet foi ativado, gere o token
+		if (tablet && tablet.id) {
+			// Crie um objeto mock para o login do tablet
+			const mockTablet = {
+				id: tablet.id,
+				registration: `tablet-${tablet.id}` // Usando um registration fictício para tablets
+			} as any
+
+			const jwtToken = await this.authService.login(mockTablet)
+			return {
+				...tablet,
+				token: jwtToken.access_token
+			}
+		}
+
+		return tablet
 	}
 
 	@Post('/validateID')
