@@ -31,15 +31,15 @@ export class AuthService {
 	async validateUser(email: string, password: string) {
 		let user: Employee
 		try {
-			user = await this.personService.findEmail(email)
+			// user = await this.personService.findEmail(email)
 		} catch (error) {
 			return null
 		}
 
-		const isPasswordValid = compareSync(password, user.password)
+		const isPasswordValid = compareSync(password, user.cpf)
 		if (!isPasswordValid) return null
 
-		await this.personService.updateLastLogin(user.id)
+		// await this.personService.updateLastLogin(user.id)
 
 		return user
 	}

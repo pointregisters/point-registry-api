@@ -48,6 +48,7 @@ export class EmployeesService {
 				const {
 					id,
 					name,
+					email,
 					company,
 					pis,
 					registration,
@@ -62,6 +63,7 @@ export class EmployeesService {
 				return {
 					id,
 					name,
+					email,
 					pis,
 					registration,
 					pontoCelular,
@@ -88,6 +90,7 @@ export class EmployeesService {
 					const {
 						id,
 						name,
+						email,
 						company,
 						pis,
 						registration,
@@ -105,6 +108,7 @@ export class EmployeesService {
 							status: 'AUTHORIZED',
 							id,
 							name,
+							email,
 							pis,
 							registration,
 							pontoCelular,
@@ -122,6 +126,7 @@ export class EmployeesService {
 						status: 'EXISTS',
 						id,
 						name,
+						email,
 						pis,
 						registration,
 						pontoCelular,
@@ -154,6 +159,7 @@ export class EmployeesService {
 					'colab.name AS name',
 					'colab.pis AS pis',
 					'colab.registration AS registration',
+					'colab.email AS email',
 					'colab.ponto_celular AS pontoCelular',
 					'colab.ponto_qrcode AS pontoQrcode',
 					'colab.ponto_biometria AS pontoBiometria',

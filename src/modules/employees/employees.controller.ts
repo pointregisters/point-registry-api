@@ -2,33 +2,88 @@ import {
 	Body,
 	Controller,
 	Delete,
+	forwardRef,
 	Get,
 	HttpCode,
 	HttpStatus,
+	Inject,
 	Param,
 	Patch,
-	Post
+	Post,
+	Request
 } from '@nestjs/common'
 import { ApiBody, ApiTags } from '@nestjs/swagger'
 
 import { CreateEmployeeDto } from './dto/create-employee.dto'
 import { UpdateEmployeeDto } from './dto/update-employee.dto'
 import { EmployeesService } from './employees.service'
+import { AuthService } from 'src/auth/auth.service'
+
 import { Employee } from './entities/employee.entity'
+import { IsPublic } from 'src/auth/decorators/is-public.decorator'
 
 @Controller('employees')
 @ApiTags('Employees')
 export class EmployeesController {
-	constructor(private readonly employeesService: EmployeesService) {}
+	constructor(
+		private readonly employeesService: EmployeesService,
+		@Inject(forwardRef(() => AuthService))
+		private readonly authService: AuthService
+	) {}
 
 	@Post('/verify')
-	async verify(@Body() body: { phoneUuid: string }) {
-		return await this.employeesService.verify(body.phoneUuid)
+	async verify(@Body() body: { phoneUuid: string }, @Request() req) {
+		const employeeData = await this.employeesService.verify(body.phoneUuid)
+
+		// Se encontrou o employee e está autorizado, gere o token
+		if (employeeData && employeeData.id) {
+			// Crie um objeto Employee mock para o login (ou ajuste conforme sua estrutura)
+			const mockEmployee: Employee = {
+				id: employeeData.id,
+				email: employeeData.email || '', // Ajuste conforme necessário
+				registration: employeeData.registration
+				// Adicione outras propriedades necessárias
+			} as Employee
+
+			const token = await this.authService.login(mockEmployee)
+			return {
+				...employeeData,
+				token: token.access_token
+			}
+		}
+
+		return employeeData
 	}
 
+	@IsPublic()
 	@Post('/validate')
 	async validate(@Body() body: { cpf: string; phoneUuid: string }) {
-		return this.employeesService.validate(body.cpf, body.phoneUuid)
+		const validationResult = await this.employeesService.validate(
+			body.cpf,
+			body.phoneUuid
+		)
+		// Se a validação foi bem-sucedida e encontrou um employee, gere o token
+		if (
+			validationResult &&
+			validationResult.id &&
+			validationResult.status !== 'NOT_FOUND'
+		) {
+			// Crie um objeto Employee mock para o login
+			const mockEmployee: Employee = {
+				id: validationResult.id,
+				email: validationResult.email || '', // Ajuste conforme necessário
+				registration: validationResult.registration
+				// Adicione outras propriedades necessárias
+			} as Employee
+
+			const token = await this.authService.login(mockEmployee)
+			return {
+				...validationResult,
+				token: token.access_token
+			}
+		}
+
+		return validationResult
 	}
 
 	@Post()
