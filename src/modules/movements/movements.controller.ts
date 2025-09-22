@@ -13,11 +13,21 @@ import {
 	UploadedFiles,
 	Query
 } from '@nestjs/common'
+import {
+	ApiBody,
+	ApiForbiddenResponse,
+	ApiInternalServerErrorResponse,
+	ApiTags,
+	ApiUnauthorizedResponse
+} from '@nestjs/swagger'
+import { DefaultUnauthorizedResponse } from '../common/swagger/DefaultUnauthorizedResponse'
+import { DefaultForbiddenResponse } from '../common/swagger/DefaultForbiddenResponse'
+import { DefaultInternalServerErrorResponse } from '../common/swagger/DefaultInternalServerErrorResponse'
+
 import { MovementsService } from './movements.service'
 import { CreateMovementDto } from './dto/create-movement.dto'
 import { UpdateMovementDto } from './dto/update-movement.dto'
 import { Movement } from './entities/movement.entity'
-import { ApiBody, ApiTags } from '@nestjs/swagger'
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express'
 
 @Controller('movements')
@@ -27,6 +37,9 @@ export class MovementsController {
 
 	@Post('/register-point')
 	@UseInterceptors(FileInterceptor('image'))
+	@ApiUnauthorizedResponse(DefaultUnauthorizedResponse)
+	@ApiForbiddenResponse(DefaultForbiddenResponse)
+	@ApiInternalServerErrorResponse(DefaultInternalServerErrorResponse)
 	async trackPhotoTablet(
 		@UploadedFile() image: Express.Multer.File,
 		@Body() createMovementDto: CreateMovementDto
@@ -46,6 +59,9 @@ export class MovementsController {
 	@Post('/synchronize/:employeeRegistration')
 	@ApiBody({ type: CreateMovementDto })
 	@UseInterceptors(FileInterceptor('image'))
+	@ApiUnauthorizedResponse(DefaultUnauthorizedResponse)
+	@ApiForbiddenResponse(DefaultForbiddenResponse)
+	@ApiInternalServerErrorResponse(DefaultInternalServerErrorResponse)
 	async createBach(
 		@UploadedFile() image: Express.Multer.File,
 		@Body() createMovementDto: CreateMovementDto,
@@ -59,6 +75,9 @@ export class MovementsController {
 	}
 
 	@Get('employee-pis/period')
+	@ApiUnauthorizedResponse(DefaultUnauthorizedResponse)
+	@ApiForbiddenResponse(DefaultForbiddenResponse)
+	@ApiInternalServerErrorResponse(DefaultInternalServerErrorResponse)
 	async getTracks(
 		@Query('pis') pis: string,
 		@Query('initialDate') initialDate: string,
@@ -80,6 +99,9 @@ export class MovementsController {
 	@Post()
 	@ApiBody({ type: CreateMovementDto })
 	@UseInterceptors(FileInterceptor('file'))
+	@ApiUnauthorizedResponse(DefaultUnauthorizedResponse)
+	@ApiForbiddenResponse(DefaultForbiddenResponse)
+	@ApiInternalServerErrorResponse(DefaultInternalServerErrorResponse)
 	async create(
 		@Body() createMovementDto: CreateMovementDto,
 		@UploadedFile() file: Express.Multer.File
@@ -90,6 +112,9 @@ export class MovementsController {
 	@Post('batch')
 	@ApiBody({ type: [CreateMovementDto], isArray: true })
 	@UseInterceptors(FilesInterceptor('file'))
+	@ApiUnauthorizedResponse(DefaultUnauthorizedResponse)
+	@ApiForbiddenResponse(DefaultForbiddenResponse)
+	@ApiInternalServerErrorResponse(DefaultInternalServerErrorResponse)
 	async createBatch(
 		@Body() createMovementDtos: CreateMovementDto[],
 		@UploadedFiles() files: Express.Multer.File[]
@@ -105,11 +130,17 @@ export class MovementsController {
 	}
 
 	@Get()
+	@ApiUnauthorizedResponse(DefaultUnauthorizedResponse)
+	@ApiForbiddenResponse(DefaultForbiddenResponse)
+	@ApiInternalServerErrorResponse(DefaultInternalServerErrorResponse)
 	async findAll(): Promise<Movement[]> {
 		return await this.movementsService.findAll()
 	}
 
 	@Get('employee-pis/:employeePis')
+	@ApiUnauthorizedResponse(DefaultUnauthorizedResponse)
+	@ApiForbiddenResponse(DefaultForbiddenResponse)
+	@ApiInternalServerErrorResponse(DefaultInternalServerErrorResponse)
 	async findForRegistration(
 		@Param('employeePis') registration: string
 	): Promise<Movement[]> {
@@ -117,12 +148,18 @@ export class MovementsController {
 	}
 
 	@Get(':id')
+	@ApiUnauthorizedResponse(DefaultUnauthorizedResponse)
+	@ApiForbiddenResponse(DefaultForbiddenResponse)
+	@ApiInternalServerErrorResponse(DefaultInternalServerErrorResponse)
 	async findOne(@Param('id') id: string): Promise<Movement> {
 		return await this.movementsService.findOne(id)
 	}
 
 	@Patch(':id')
 	@ApiBody({ type: UpdateMovementDto })
+	@ApiUnauthorizedResponse(DefaultUnauthorizedResponse)
+	@ApiForbiddenResponse(DefaultForbiddenResponse)
+	@ApiInternalServerErrorResponse(DefaultInternalServerErrorResponse)
 	async update(
 		@Param('id') id: string,
 		@Body() updateMovementDto: UpdateMovementDto
@@ -132,6 +169,9 @@ export class MovementsController {
 
 	@Delete(':id')
 	@HttpCode(HttpStatus.NO_CONTENT)
+	@ApiUnauthorizedResponse(DefaultUnauthorizedResponse)
+	@ApiForbiddenResponse(DefaultForbiddenResponse)
+	@ApiInternalServerErrorResponse(DefaultInternalServerErrorResponse)
 	async remove(@Param('id') id: string): Promise<void> {
 		return await this.movementsService.remove(id)
 	}

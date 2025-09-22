@@ -12,7 +12,16 @@ import {
 	Post,
 	Request
 } from '@nestjs/common'
-import { ApiBody, ApiTags } from '@nestjs/swagger'
+import {
+	ApiBody,
+	ApiForbiddenResponse,
+	ApiInternalServerErrorResponse,
+	ApiTags,
+	ApiUnauthorizedResponse
+} from '@nestjs/swagger'
+import { DefaultUnauthorizedResponse } from '../common/swagger/DefaultUnauthorizedResponse'
+import { DefaultForbiddenResponse } from '../common/swagger/DefaultForbiddenResponse'
+import { DefaultInternalServerErrorResponse } from '../common/swagger/DefaultInternalServerErrorResponse'
 
 import { CreateEmployeeDto } from './dto/create-employee.dto'
 import { UpdateEmployeeDto } from './dto/update-employee.dto'
@@ -32,6 +41,9 @@ export class EmployeesController {
 	) {}
 
 	@Post('/verify')
+	@ApiUnauthorizedResponse(DefaultUnauthorizedResponse)
+	@ApiForbiddenResponse(DefaultForbiddenResponse)
+	@ApiInternalServerErrorResponse(DefaultInternalServerErrorResponse)
 	async verify(@Body() body: { phoneUuid: string }, @Request() req) {
 		const employeeData = await this.employeesService.verify(body.phoneUuid)
 
@@ -57,6 +69,8 @@ export class EmployeesController {
 
 	@IsPublic()
 	@Post('/validate')
+	@ApiForbiddenResponse(DefaultForbiddenResponse)
+	@ApiInternalServerErrorResponse(DefaultInternalServerErrorResponse)
 	async validate(@Body() body: { cpf: string; phoneUuid: string }) {
 		const validationResult = await this.employeesService.validate(
 			body.cpf,
@@ -88,6 +102,9 @@ export class EmployeesController {
 
 	@Post()
 	@ApiBody({ type: CreateEmployeeDto })
+	@ApiUnauthorizedResponse(DefaultUnauthorizedResponse)
+	@ApiForbiddenResponse(DefaultForbiddenResponse)
+	@ApiInternalServerErrorResponse(DefaultInternalServerErrorResponse)
 	async create(
 		@Body() createEmployeeDto: CreateEmployeeDto
 	): Promise<Employee> {
@@ -95,16 +112,25 @@ export class EmployeesController {
 	}
 
 	@Get()
+	@ApiUnauthorizedResponse(DefaultUnauthorizedResponse)
+	@ApiForbiddenResponse(DefaultForbiddenResponse)
+	@ApiInternalServerErrorResponse(DefaultInternalServerErrorResponse)
 	async findAll(): Promise<Employee[]> {
 		return await this.employeesService.findAll()
 	}
 
 	@Get(':id')
+	@ApiUnauthorizedResponse(DefaultUnauthorizedResponse)
+	@ApiForbiddenResponse(DefaultForbiddenResponse)
+	@ApiInternalServerErrorResponse(DefaultInternalServerErrorResponse)
 	async findOne(@Param('id') id: string): Promise<Employee> {
 		return await this.employeesService.findOne(+id)
 	}
 
 	@Get(':registration/company/:companyId')
+	@ApiUnauthorizedResponse(DefaultUnauthorizedResponse)
+	@ApiForbiddenResponse(DefaultForbiddenResponse)
+	@ApiInternalServerErrorResponse(DefaultInternalServerErrorResponse)
 	async findEmployeeByCompany(
 		@Param('registration') registration: string,
 		@Param('companyId') companyId: number
@@ -112,6 +138,9 @@ export class EmployeesController {
 		return await this.employeesService.findRegistration(registration, companyId)
 	}
 	@Get('/company/:companyId')
+	@ApiUnauthorizedResponse(DefaultUnauthorizedResponse)
+	@ApiForbiddenResponse(DefaultForbiddenResponse)
+	@ApiInternalServerErrorResponse(DefaultInternalServerErrorResponse)
 	async findEmployeesByCompanyId(
 		@Param('companyId') companyId: number
 	): Promise<Employee[]> {
@@ -119,6 +148,9 @@ export class EmployeesController {
 	}
 
 	@Patch(':id')
+	@ApiUnauthorizedResponse(DefaultUnauthorizedResponse)
+	@ApiForbiddenResponse(DefaultForbiddenResponse)
+	@ApiInternalServerErrorResponse(DefaultInternalServerErrorResponse)
 	@ApiBody({ type: UpdateEmployeeDto })
 	async update(
 		@Param('id') id: string,
@@ -129,6 +161,9 @@ export class EmployeesController {
 
 	@Delete(':id')
 	@HttpCode(HttpStatus.NO_CONTENT)
+	@ApiUnauthorizedResponse(DefaultUnauthorizedResponse)
+	@ApiForbiddenResponse(DefaultForbiddenResponse)
+	@ApiInternalServerErrorResponse(DefaultInternalServerErrorResponse)
 	async remove(@Param('id') id: string): Promise<void> {
 		return await this.employeesService.remove(+id)
 	}
