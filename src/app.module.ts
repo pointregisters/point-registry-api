@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common'
+import { forwardRef, Module } from '@nestjs/common'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { AuthModule } from './auth/auth.module'
@@ -40,13 +40,11 @@ const packageJson = JSON.parse(
 				DB_USER: Joi.string().required(),
 				DB_PASSWORD: Joi.string().required(),
 				DB_DATABASE: Joi.string().required(),
-				JWT_SECRET: Joi.string().default(
-					'seu_jwt_secret_super_seguro_aqui_mude_em_producao'
-				)
+				JWT_SECRET: Joi.string().required()
 			})
 		}),
-		AuthModule,
-		EmployeesModule,
+		forwardRef(() => AuthModule),
+		forwardRef(() => EmployeesModule),
 		CompaniesModule,
 		TabletsCompaniesModule,
 		MovementsModule,

@@ -1,4 +1,9 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common'
+import {
+	forwardRef,
+	MiddlewareConsumer,
+	Module,
+	NestModule
+} from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { JwtModule } from '@nestjs/jwt'
 import { AuthService } from './auth.service'
@@ -12,7 +17,7 @@ import { EmployeesModule } from 'src/modules/employees/employees.module'
 @Module({
 	imports: [
 		ConfigModule.forRoot(),
-		EmployeesModule,
+		forwardRef(() => EmployeesModule),
 		PassportModule,
 		JwtModule.register({
 			privateKey: process.env.JWT_SECRET_KEY,
@@ -20,7 +25,8 @@ import { EmployeesModule } from 'src/modules/employees/employees.module'
 		})
 	],
 	controllers: [AuthController],
-	providers: [AuthService, LocalStrategy, JwtStrategy]
+	providers: [AuthService, LocalStrategy, JwtStrategy],
+	exports: [AuthService]
 })
 export class AuthModule implements NestModule {
 	configure(consumer: MiddlewareConsumer) {
