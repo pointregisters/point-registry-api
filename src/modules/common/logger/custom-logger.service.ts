@@ -29,20 +29,37 @@ export class CustomLogger implements LoggerService {
 									? `[${context}]`
 									: `[${this.context}]`
 
-								// Se message for um objeto, converte para string
-								const messageText =
-									typeof message === 'string'
-										? message
-										: JSON.stringify(message)
+								// CORREÇÃO: Lidar com mensagens que são objetos (logs do NestJS)
+								let messageText: string
+								if (typeof message === 'string') {
+									messageText = message
+								} else if (message && typeof message === 'object') {
+									// Se for um objeto com propriedades 0,1,2... (como "InstanceLoader")
+									if (message['0'] !== undefined) {
+										messageText = Object.values(message).join('')
+									} else {
+										messageText = JSON.stringify(message)
+									}
+								} else {
+									messageText = String(message)
+								}
 
 								let log = `[${timestamp}] ${level}\t${contextTag} ${messageText}`
 
-								// Adiciona metadados extras se existirem
+								// Adiciona metadados extras se existirem (apenas para nossos logs customizados)
 								const cleanMeta = { ...meta }
 								delete cleanMeta.context
 								delete cleanMeta.service
 
-								if (Object.keys(cleanMeta).length > 0) {
+								// Só mostra meta se não for um log interno do NestJS
+								const isNestInternalLog =
+									messageText.includes('InstanceLoader') ||
+									messageText.includes('RoutesResolver') ||
+									messageText.includes('RouterExplorer') ||
+									messageText.includes('NestFactory') ||
+									messageText.includes('NestApplication')
+
+								if (!isNestInternalLog && Object.keys(cleanMeta).length > 0) {
 									log += ` - ${JSON.stringify(cleanMeta)}`
 								}
 
@@ -74,55 +91,80 @@ export class CustomLogger implements LoggerService {
 		this.context = context
 	}
 
-	// Métodos corrigidos - aceitam apenas string como primeiro parâmetro
-	log(message: string, context?: string) {
-		const contextToUse = context || this.context
-		this.logger.info(message, { context: contextToUse })
+	// Métodos para logs do NestJS (mantém compatibilidade)
+	log(message: any, context?: string) {
+		this.handleLog('info', message, undefined, context)
 	}
 
-	error(message: string, trace?: string, context?: string) {
-		const contextToUse = context || this.context
-		this.logger.error(message, { trace, context: contextToUse })
+	error(message: any, trace?: string, context?: string) {
+		this.handleLog('error', message, trace, context)
 	}
 
-	warn(message: string, context?: string) {
+	warn(message: string, meta?: any, context?: string) {
 		const contextToUse = context || this.context
-		this.logger.warn(message, { context: contextToUse })
+		this.logger.warn(message, { ...meta, context: contextToUse })
 	}
 
-	debug(message: string, context?: string) {
-		const contextToUse = context || this.context
-		this.logger.debug(message, { context: contextToUse })
+	debug(message: any, context?: string) {
+		this.handleLog('debug', message, undefined, context)
 	}
 
-	verbose(message: string, context?: string) {
-		const contextToUse = context || this.context
-		this.logger.verbose(message, { context: contextToUse })
+	verbose(message: any, context?: string) {
+		this.handleLog('verbose', message, undefined, context)
 	}
 
-	// Métodos específicos - agora formatam a mensagem corretamente
+	// Método auxiliar para processar logs
+	private handleLog(
+		level: string,
+		message: any,
+		trace?: string,
+		context?: string
+	) {
+		const contextToUse = context || this.context
+
+		if (typeof message === 'object') {
+			if (message['0'] !== undefined) {
+				const messageText = Object.values(message).join('')
+				this.logger.log(level, messageText, { context: contextToUse, trace })
+			} else {
+				// Para objetos com metadados explícitos
+				if (message.message && message.meta) {
+					this.logger.log(level, message.message, {
+						...message.meta,
+						context: contextToUse,
+						trace
+					})
+				} else {
+					this.logger.log(level, JSON.stringify(message), {
+						context: contextToUse,
+						trace
+					})
+				}
+			}
+		} else {
+			this.logger.log(level, message, { context: contextToUse, trace })
+		}
+	}
+
+	// Métodos específicos para nossos logs customizados
 	http(message: string, meta?: any) {
-		const metaString = meta ? ` - ${JSON.stringify(meta)}` : ''
-		this.logger.info(`${message}${metaString}`, { context: 'HTTP' })
+		this.logger.info(message, { ...meta, context: 'HTTP' })
 	}
 
 	database(message: string, meta?: any) {
-		const metaString = meta ? ` - ${JSON.stringify(meta)}` : ''
-		this.logger.debug(`${message}${metaString}`, { context: 'DATABASE' })
+		this.logger.debug(message, { ...meta, context: 'DATABASE' })
 	}
 
 	business(message: string, meta?: any) {
-		const metaString = meta ? ` - ${JSON.stringify(meta)}` : ''
-		this.logger.info(`${message}${metaString}`, { context: 'BUSINESS' })
+		this.logger.info(message, { ...meta, context: 'BUSINESS' })
 	}
 
 	security(message: string, meta?: any) {
-		const metaString = meta ? ` - ${JSON.stringify(meta)}` : ''
-		this.logger.warn(`${message}${metaString}`, { context: 'SECURITY' })
+		this.logger.warn(message, { ...meta, context: 'SECURITY' })
 	}
 
-	info(message: string, context?: string) {
+	info(message: string, meta?: any, context?: string) {
 		const contextToUse = context || this.context
-		this.logger.info(message, { context: contextToUse })
+		this.logger.info(message, { ...meta, context: contextToUse })
 	}
 }
