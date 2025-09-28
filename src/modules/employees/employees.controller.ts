@@ -9,8 +9,7 @@ import {
 	Inject,
 	Param,
 	Patch,
-	Post,
-	Request
+	Post
 } from '@nestjs/common'
 import {
 	ApiBody,
@@ -44,7 +43,7 @@ export class EmployeesController {
 	@ApiUnauthorizedResponse(DefaultUnauthorizedResponse)
 	@ApiForbiddenResponse(DefaultForbiddenResponse)
 	@ApiInternalServerErrorResponse(DefaultInternalServerErrorResponse)
-	async verify(@Body() body: { phoneUuid: string }, @Request() req) {
+	async verify(@Body() body: { phoneUuid: string }) {
 		const employeeData = await this.employeesService.verify(body.phoneUuid)
 
 		// Se encontrou o employee e está autorizado, gere o token
