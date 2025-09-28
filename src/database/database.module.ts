@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { ConfigModule, ConfigService } from '@nestjs/config'
+import { DatabaseLoggerService } from '../modules/common/logger/database-logger.service'
+import { CustomLogger } from '../modules/common/logger/custom-logger.service'
 import { Employee } from 'src/modules/employees/entities/employee.entity'
 import { Movement } from 'src/modules/movements/entities/movement.entity'
 import { TabletsCompany } from 'src/modules/tablets-companies/entities/tablets-company.entity'
@@ -14,16 +16,14 @@ import { Communication } from 'src/modules/communications/entities/communication
 	imports: [
 		TypeOrmModule.forRootAsync({
 			imports: [ConfigModule],
-			inject: [ConfigService],
-			useFactory: (configService: ConfigService) => ({
+			inject: [ConfigService, CustomLogger],
+			useFactory: (configService: ConfigService, logger: CustomLogger) => ({
 				type: 'mysql',
 				host: configService.get('DB_HOST'),
 				port: configService.get('DB_PORT'),
 				username: configService.get('DB_USER'),
 				password: configService.get('DB_PASSWORD'),
 				database: configService.get('DB_DATABASE'),
-				synchronize: false,
-				logging: true,
 				entities: [
 					Employee,
 					Movement,
@@ -33,7 +33,15 @@ import { Communication } from 'src/modules/communications/entities/communication
 					RegisterQrcode,
 					CommunicationNotification,
 					Communication
-				]
+				],
+
+				synchronize: false,
+				logging: true,
+				logger: new DatabaseLoggerService(logger),
+				extra: {
+					connectionLimit: 10,
+					charset: 'utf8mb4'
+				}
 			})
 		})
 	]

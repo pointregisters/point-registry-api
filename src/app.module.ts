@@ -19,6 +19,7 @@ import { readFileSync } from 'fs'
 import { join } from 'path'
 import { APP_GUARD } from '@nestjs/core'
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard'
+import { LoggerModule } from './modules/common/logger/logger.module'
 
 const packageJson = JSON.parse(
 	readFileSync(join(__dirname, '..', 'package.json'), 'utf8')
@@ -26,6 +27,7 @@ const packageJson = JSON.parse(
 
 @Module({
 	imports: [
+		LoggerModule,
 		ConfigModule.forRoot({
 			load: [
 				() => ({
