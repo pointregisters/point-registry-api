@@ -6,11 +6,13 @@ import { EmployeesController } from './employees.controller'
 import { EmployeesService } from './employees.service'
 import { Employee } from './entities/employee.entity'
 import { AuthModule } from 'src/auth/auth.module'
+import { LoggerModule } from '../common/logger/logger.module'
 
 @Module({
 	imports: [
 		TypeOrmModule.forFeature([Employee, Region]),
-		forwardRef(() => AuthModule)
+		forwardRef(() => AuthModule),
+		LoggerModule
 	],
 	controllers: [EmployeesController],
 	providers: [EmployeesService],
