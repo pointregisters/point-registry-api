@@ -17,8 +17,8 @@ import { CommunicationsNotificationsModule } from './modules/communications_noti
 import * as Joi from '@hapi/joi'
 import { readFileSync } from 'fs'
 import { join } from 'path'
-import { APP_GUARD } from '@nestjs/core'
-import { JwtAuthGuard } from './auth/guards/jwt-auth.guard'
+// import { APP_GUARD } from '@nestjs/core'
+// import { JwtAuthGuard } from './auth/guards/jwt-auth.guard'
 import { LoggerModule } from './modules/common/logger/logger.module'
 
 const packageJson = JSON.parse(
@@ -59,11 +59,11 @@ const packageJson = JSON.parse(
 	],
 	controllers: [AppController],
 	providers: [
-		AppService,
-		{
-			provide: APP_GUARD,
-			useClass: JwtAuthGuard
-		}
+		AppService
+		// {
+		// 	provide: APP_GUARD,
+		// 	useClass: JwtAuthGuard
+		// }
 	]
 })
 export class AppModule {}
