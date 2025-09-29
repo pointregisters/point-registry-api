@@ -1,23 +1,40 @@
-import { Module } from '@nestjs/common'
+import { forwardRef, Module } from '@nestjs/common'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
-import { EmployeesModule } from './employees/employees.module'
-import { CompaniesModule } from './companies/companies.module'
-import { TabletsCompaniesModule } from './tablets-companies/tablets-companies.module'
-import { MovementsModule } from './movements/movements.module'
+import { AuthModule } from './auth/auth.module'
+import { EmployeesModule } from './modules/employees/employees.module'
+import { CompaniesModule } from './modules/companies/companies.module'
+import { TabletsCompaniesModule } from './modules/tablets-companies/tablets-companies.module'
+import { MovementsModule } from './modules/movements/movements.module'
 import { DatabaseModule } from './database/database.module'
 import { ConfigModule } from '@nestjs/config'
 import { AwsS3Module } from './aws-s3/aws-s3.module'
-import { RegionModule } from './region/region.module'
-import { DepartmentModule } from './department/department.module'
-import { RegisterQrcodeModule } from './register_qrcode/register_qrcode.module'
-import { CommunicationsModule } from './communications/communications.module'
-import { CommunicationsNotificationsModule } from './communications_notifications/communications_notifications.module'
+import { RegionModule } from './modules/region/region.module'
+import { DepartmentModule } from './modules/department/department.module'
+import { RegisterQrcodeModule } from './modules/register_qrcode/register_qrcode.module'
+import { CommunicationsModule } from './modules/communications/communications.module'
+import { CommunicationsNotificationsModule } from './modules/communications_notifications/communications_notifications.module'
 import * as Joi from '@hapi/joi'
+import { readFileSync } from 'fs'
+import { join } from 'path'
+// import { APP_GUARD } from '@nestjs/core'
+// import { JwtAuthGuard } from './auth/guards/jwt-auth.guard'
+import { LoggerModule } from './modules/common/logger/logger.module'
+
+const packageJson = JSON.parse(
+	readFileSync(join(__dirname, '..', 'package.json'), 'utf8')
+)
 
 @Module({
 	imports: [
+		LoggerModule,
 		ConfigModule.forRoot({
+			load: [
+				() => ({
+					version: packageJson.version,
+					appName: packageJson.name
+				})
+			],
 			validationSchema: Joi.object({
 				PORT: Joi.number(),
 				DB_HOST: Joi.string().required(),
@@ -27,7 +44,8 @@ import * as Joi from '@hapi/joi'
 				DB_DATABASE: Joi.string().required()
 			})
 		}),
-		EmployeesModule,
+		forwardRef(() => AuthModule),
+		forwardRef(() => EmployeesModule),
 		CompaniesModule,
 		TabletsCompaniesModule,
 		MovementsModule,
@@ -40,6 +58,12 @@ import * as Joi from '@hapi/joi'
 		CommunicationsNotificationsModule
 	],
 	controllers: [AppController],
-	providers: [AppService]
+	providers: [
+		AppService
+		// {
+		// 	provide: APP_GUARD,
+		// 	useClass: JwtAuthGuard
+		// }
+	]
 })
 export class AppModule {}
