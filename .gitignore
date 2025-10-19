@@ -39,3 +39,4 @@ yarn.lock
 !.vscode/extensions.json
 
 .env
+package-lock.json
