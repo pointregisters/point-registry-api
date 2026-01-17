@@ -9,8 +9,7 @@ import {
 	HttpCode,
 	HttpStatus,
 	Inject,
-	forwardRef,
-	Request
+	forwardRef
 } from '@nestjs/common'
 import {
 	ApiBody,
@@ -28,7 +27,6 @@ import { CreateTabletsCompanyDto } from './dto/create-tablets-company.dto'
 import { UpdateTabletsCompanyDto } from './dto/update-tablets-company.dto'
 import { TabletsCompany } from './entities/tablets-company.entity'
 import { AuthService } from 'src/auth/auth.service'
-import { IsPublic } from 'src/auth/decorators/is-public.decorator'
 
 @Controller('tablets-companies')
 @ApiTags('Tablets-Companies')
@@ -116,34 +114,29 @@ export class TabletsCompaniesController {
 		return result
 	}
 
-	@IsPublic()
 	@Post('/validate-tablet')
 	@ApiUnauthorizedResponse(DefaultUnauthorizedResponse)
 	@ApiForbiddenResponse(DefaultForbiddenResponse)
 	@ApiInternalServerErrorResponse(DefaultInternalServerErrorResponse)
 	async validateTablet(@Body() body: { uuid: string; token: string }) {
 		const { uuid, token } = body
+
 		const tablet = await this.tabletsCompaniesService.validateTablet(
 			uuid,
 			token
 		)
 
-		// Se a validação foi bem-sucedida e o tablet foi ativado, gere o token
-		if (tablet && tablet.id) {
-			// Crie um objeto mock para o login do tablet
-			const mockTablet = {
-				id: tablet.id,
-				registration: `tablet-${tablet.id}` // Usando um registration fictício para tablets
-			} as any
+		const mockTablet = {
+			id: tablet.id,
+			registration: `tablet-${tablet.id}`
+		} as any
 
-			const jwtToken = await this.authService.login(mockTablet)
-			return {
-				...tablet,
-				token: jwtToken.access_token
-			}
+		const jwtToken = await this.authService.login(mockTablet)
+
+		return {
+			...tablet,
+			token: jwtToken.access_token
 		}
-
-		return tablet
 	}
 
 	@Post('/validateID')

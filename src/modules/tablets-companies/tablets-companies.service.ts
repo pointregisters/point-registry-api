@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import {
+	ConflictException,
+	Injectable,
+	NotFoundException
+} from '@nestjs/common'
 import { CreateTabletsCompanyDto } from './dto/create-tablets-company.dto'
 import { UpdateTabletsCompanyDto } from './dto/update-tablets-company.dto'
 import { TabletsCompany } from './entities/tablets-company.entity'
@@ -41,43 +45,42 @@ export class TabletsCompaniesService {
 	}
 
 	async validateTablet(uuid: string, token: string): Promise<TabletsCompany> {
-		try {
-			const tablet = await this.tabletsCompanyRepository
-				.createQueryBuilder()
-				.select(['tc', 'r.description AS region'])
-				.from(TabletsCompany, 'tc')
-				.leftJoin('companies', 'c', 'c.id = tc.companyId')
-				.leftJoin('region', 'r', 'r.id = c.region_id')
-				.where('tc.token = :token', { token })
-				.andWhere('tc.status = 0')
-				.getOne()
+		// 1️⃣ Busca pelo token, independente do status
+		const tablet = await this.tabletsCompanyRepository.findOne({
+			where: { token }
+		})
 
-			const region = await this.regionRepository
-				.createQueryBuilder('region')
-				.leftJoin('companies', 'c', 'c.region_id = region.id')
-				.leftJoin('tablets_companies', 'tc', 'tc.companie_id = c.id')
-				.where('tc.token = :token', { token })
-				.getOne()
-
-			if (tablet) {
-				tablet.uuid = uuidv4()
-				tablet.status = true
-				tablet.dataInstalacao = new Date(
-					moment().tz(`${region.description}`).format('YYYY-MM-DD HH:mm:ss')
-				)
-
-				// Save the updated tablet
-				await this.tabletsCompanyRepository.save(tablet)
-
-				return tablet
-			} else {
-				throw new NotFoundException(
-					`Não achei um TabletsCompany com o token ${token}`
-				)
-			}
-		} catch (error) {
-			throw new Error('Failed to execute the query: ' + error.message)
+		// ❌ Token não existe
+		if (!tablet) {
+			throw new NotFoundException('Token inválido.')
 		}
+
+		// ⚠️ Token já foi utilizado
+		if (tablet.status === true) {
+			throw new ConflictException(
+				'Este token já foi utilizado em outro dispositivo.'
+			)
+		}
+
+		// ✔️ Token válido e ainda não ativado
+		const region = await this.regionRepository
+			.createQueryBuilder('region')
+			.leftJoin('companies', 'c', 'c.region_id = region.id')
+			.leftJoin('tablets_companies', 'tc', 'tc.companie_id = c.id')
+			.where('tc.token = :token', { token })
+			.getOne()
+
+		tablet.uuid = uuidv4()
+		tablet.status = true
+		tablet.dataInstalacao = new Date(
+			moment()
+				.tz(region?.description || 'UTC')
+				.format('YYYY-MM-DD HH:mm:ss')
+		)
+
+		await this.tabletsCompanyRepository.save(tablet)
+
+		return tablet
 	}
 
 	async validateID(id: string, token: string, region: string): Promise<any> {
